@@ -120,6 +120,62 @@ body { font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaH
 
 /* Charts */
 .chart-container { position:relative; height:320px; margin-top:12px; }
+
+/* ===== 手机端响应式适配 ===== */
+@media (max-width: 640px) {
+  body { padding:8px; }
+  .section { padding:16px 12px; border-radius:12px; }
+  .section-title { font-size:15px; margin-bottom:14px; }
+
+  /* Header */
+  .header { padding:16px 18px; border-radius:12px; }
+  .header-left .title { font-size:20px; }
+  .header-left .brand { font-size:11px; letter-spacing:2px; }
+  .header-left .date { font-size:12px; }
+  .header-right label { display:none; }
+  .model-select { padding:6px 10px; font-size:12px; }
+
+  /* KPI Cards - 手机端改为2列 */
+  .kpi-grid { grid-template-columns:repeat(2, 1fr); gap:10px; }
+  .kpi-card { padding:14px 8px; border-radius:12px; }
+  .kpi-label { font-size:12px; margin-bottom:6px; }
+  .kpi-main { font-size:20px; }
+  .kpi-change { font-size:10px; padding:1px 6px; border-radius:8px; }
+
+  /* Promo Cards - 手机端改为2列 */
+  .promo-grid { grid-template-columns:repeat(2, 1fr); gap:10px; }
+  .promo-card { padding:12px 8px; min-height:80px; border-radius:10px; }
+  .promo-label { font-size:11px; }
+  .promo-main { font-size:16px; }
+  .promo-change { font-size:9px; padding:1px 6px; }
+
+  /* Tabs */
+  .sub-tabs { width:100%; }
+  .sub-tab { flex:1; text-align:center; padding:8px 0; font-size:12px; }
+  .range-tabs { width:100%; }
+  .range-tab { flex:1; text-align:center; padding:6px 0; font-size:12px; }
+
+  /* Tables - 横向滚动 */
+  .table-wrap { overflow-x:auto; -webkit-overflow-scrolling:touch; }
+  .model-promo-table { min-width:600px; }
+  .data-table { min-width:500px; }
+  .detail-scroll { max-height:280px; }
+
+  /* Chart */
+  .chart-container { height:260px; }
+
+  /* Footer */
+  .footer { font-size:11px; padding:16px 0; }
+}
+
+/* 超小屏 */
+@media (max-width: 380px) {
+  .kpi-grid { grid-template-columns:repeat(2, 1fr); gap:8px; }
+  .kpi-card { padding:12px 6px; }
+  .kpi-main { font-size:18px; }
+  .promo-grid { grid-template-columns:repeat(2, 1fr); gap:8px; }
+  .promo-main { font-size:15px; }
+}
 </style>
 </head>
 <body>
@@ -335,7 +391,7 @@ body { font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaH
 <!-- ===== Footer ===== -->
 <div class="footer">
   TOWERTOP 京东自营旗舰店 · 数据来源：商智自营版 & 京准通<br>
-  报告生成时间：2026-05-23 14:03:24
+  报告生成时间：2026-05-23 14:07:48
 </div>
 
 </div>
