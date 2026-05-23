@@ -164,8 +164,8 @@ body { font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaH
   .data-table th { font-size:11px; padding:8px 6px; }
   .detail-scroll { max-height:240px; }
 
-  /* Chart - mobile taller, fewer lines */
-  .chart-container { height:340px; }
+  /* Chart - mobile taller to fit 4 lines */
+  .chart-container { height:400px; }
 
   /* Footer */
   .footer { font-size:10px; padding:14px 0; }
@@ -388,7 +388,7 @@ body { font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaH
 <!-- ===== Footer ===== -->
 <div class="footer">
   TOWERTOP 京东自营旗舰店 · 数据来源：商智自营版 & 京准通<br>
-  报告生成时间：2026-05-23 16:08:25
+  报告生成时间：2026-05-23 16:11:49
 </div>
 
 </div>
@@ -761,8 +761,8 @@ function initChart() {
           fill: true,
           tension: 0.4,
           yAxisID: 'y',
-          pointRadius: isMobile ? 2 : 4,
-          pointHoverRadius: isMobile ? 5 : 7,
+          pointRadius: isMobile ? 0 : 4,
+          pointHoverRadius: isMobile ? 4 : 7,
           pointBackgroundColor: '#c41230',
           pointBorderColor: '#fff',
           pointBorderWidth: 2,
@@ -776,7 +776,7 @@ function initChart() {
           fill: false,
           tension: 0.4,
           yAxisID: 'y1',
-          pointRadius: isMobile ? 2 : 3,
+          pointRadius: isMobile ? 0 : 3,
           pointHoverRadius: isMobile ? 4 : 6,
           pointBackgroundColor: '#5b6abf',
           pointBorderColor: '#fff',
@@ -792,8 +792,7 @@ function initChart() {
           fill: false,
           tension: 0.4,
           yAxisID: 'y2',
-          hidden: isMobile,
-          pointRadius: isMobile ? 1 : 2,
+          pointRadius: isMobile ? 0 : 2,
           pointHoverRadius: isMobile ? 3 : 5,
           pointBackgroundColor: '#2ea87e',
           pointBorderColor: '#fff',
@@ -809,8 +808,7 @@ function initChart() {
           fill: false,
           tension: 0.4,
           yAxisID: 'y2',
-          hidden: isMobile,
-          pointRadius: isMobile ? 1 : 2,
+          pointRadius: isMobile ? 0 : 2,
           pointHoverRadius: isMobile ? 3 : 5,
           pointBackgroundColor: '#e8913a',
           pointBorderColor: '#fff',
@@ -824,16 +822,16 @@ function initChart() {
       responsive: true,
       maintainAspectRatio: false,
       interaction: { mode: 'index', intersect: false },
-      layout: isMobile ? { padding: { top: 4, bottom: 2, left: 0, right: 8 } } : {},
+      layout: isMobile ? { padding: { top: 2, bottom: 0, left: 0, right: 0 } } : {},
       plugins: {
         legend: {
           position: isMobile ? 'bottom' : 'top',
           labels: {
             color: '#666',
             usePointStyle: true,
-            padding: isMobile ? 6 : 16,
-            font: isMobile ? { size: 10 } : { size: 12 },
-            boxWidth: isMobile ? 10 : 12
+            padding: isMobile ? 4 : 16,
+            font: isMobile ? { size: 8 } : { size: 12 },
+            boxWidth: isMobile ? 8 : 12
           }
         },
         tooltip: {
@@ -842,10 +840,10 @@ function initChart() {
           bodyColor: '#666',
           borderColor: '#e8ecf1',
           borderWidth: 1,
-          padding: isMobile ? 8 : 12,
+          padding: isMobile ? 6 : 12,
           cornerRadius: 8,
-          titleFont: isMobile ? { size: 11 } : { size: 13 },
-          bodyFont: isMobile ? { size: 10 } : { size: 12 }
+          titleFont: isMobile ? { size: 10 } : { size: 13 },
+          bodyFont: isMobile ? { size: 9 } : { size: 12 }
         }
       },
       scales: {
@@ -853,7 +851,7 @@ function initChart() {
           grid: { color: '#f0f2f5' },
           ticks: {
             color: '#999',
-            font: isMobile ? { size: 9 } : { size: 12 }
+            font: isMobile ? { size: 8 } : { size: 12 }
           }
         },
         y: {
@@ -863,7 +861,7 @@ function initChart() {
           grid: { color: '#f0f2f5' },
           ticks: {
             color: '#999',
-            font: isMobile ? { size: 9 } : { size: 11 },
+            font: isMobile ? { size: 8 } : { size: 11 },
             callback: function(v) {
               if (isMobile) {
                 return v >= 1000 ? '¥' + (v/1000).toFixed(1) + 'k' : '¥' + v;
@@ -879,19 +877,18 @@ function initChart() {
           grid: { drawOnChartArea: false },
           ticks: {
             color: '#5b6abf',
-            font: isMobile ? { size: 9 } : { size: 11 },
+            font: isMobile ? { size: 8 } : { size: 11 },
             callback: function(v) { return v + '件'; }
           }
         },
         y2: {
           type: 'linear',
           position: 'right',
-          display: !isMobile,
           title: { display: !isMobile, text: '浏览/访客', color: '#2ea87e' },
           grid: { drawOnChartArea: false },
           ticks: {
             color: '#2ea87e',
-            font: isMobile ? { size: 9 } : { size: 11 },
+            font: isMobile ? { size: 8 } : { size: 11 },
             callback: function(v) { return v.toLocaleString(); }
           }
         }
