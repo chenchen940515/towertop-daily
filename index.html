@@ -164,8 +164,8 @@ body { font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaH
   .data-table th { font-size:11px; padding:8px 6px; }
   .detail-scroll { max-height:240px; }
 
-  /* Chart */
-  .chart-container { height:300px; }
+  /* Chart - mobile taller, fewer lines */
+  .chart-container { height:340px; }
 
   /* Footer */
   .footer { font-size:10px; padding:14px 0; }
@@ -388,7 +388,7 @@ body { font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaH
 <!-- ===== Footer ===== -->
 <div class="footer">
   TOWERTOP 京东自营旗舰店 · 数据来源：商智自营版 & 京准通<br>
-  报告生成时间：2026-05-23 15:58:32
+  报告生成时间：2026-05-23 16:08:25
 </div>
 
 </div>
@@ -792,6 +792,7 @@ function initChart() {
           fill: false,
           tension: 0.4,
           yAxisID: 'y2',
+          hidden: isMobile,
           pointRadius: isMobile ? 1 : 2,
           pointHoverRadius: isMobile ? 3 : 5,
           pointBackgroundColor: '#2ea87e',
@@ -808,6 +809,7 @@ function initChart() {
           fill: false,
           tension: 0.4,
           yAxisID: 'y2',
+          hidden: isMobile,
           pointRadius: isMobile ? 1 : 2,
           pointHoverRadius: isMobile ? 3 : 5,
           pointBackgroundColor: '#e8913a',
@@ -822,13 +824,14 @@ function initChart() {
       responsive: true,
       maintainAspectRatio: false,
       interaction: { mode: 'index', intersect: false },
+      layout: isMobile ? { padding: { top: 4, bottom: 2, left: 0, right: 8 } } : {},
       plugins: {
         legend: {
           position: isMobile ? 'bottom' : 'top',
           labels: {
             color: '#666',
             usePointStyle: true,
-            padding: isMobile ? 8 : 16,
+            padding: isMobile ? 6 : 16,
             font: isMobile ? { size: 10 } : { size: 12 },
             boxWidth: isMobile ? 10 : 12
           }
@@ -861,7 +864,12 @@ function initChart() {
           ticks: {
             color: '#999',
             font: isMobile ? { size: 9 } : { size: 11 },
-            callback: function(v) { return '¥' + v.toLocaleString(); }
+            callback: function(v) {
+              if (isMobile) {
+                return v >= 1000 ? '¥' + (v/1000).toFixed(1) + 'k' : '¥' + v;
+              }
+              return '¥' + v.toLocaleString();
+            }
           }
         },
         y1: {
@@ -878,6 +886,7 @@ function initChart() {
         y2: {
           type: 'linear',
           position: 'right',
+          display: !isMobile,
           title: { display: !isMobile, text: '浏览/访客', color: '#2ea87e' },
           grid: { drawOnChartArea: false },
           ticks: {
