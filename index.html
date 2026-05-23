@@ -88,22 +88,34 @@ body { font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaH
 .detail-scroll th { position:sticky; top:0; background:#f8f9fb; z-index:2; }
 .sum-row { background:rgba(196,18,48,0.04) !important; font-weight:700; }
 
+/* Model promo table */
+.model-promo-table { width:100%; border-collapse:collapse; font-size:12px; }
+.model-promo-table th { background:#f5f7fa; color:#888; font-weight:500; padding:10px 8px; text-align:center; border-bottom:1px solid #e8ecf1; font-size:11px; white-space:nowrap; }
+.model-promo-table th:first-child { text-align:left; }
+.model-promo-table td { padding:10px 8px; text-align:center; border-bottom:1px solid #f0f2f5; }
+.model-promo-table td:first-child { text-align:left; font-weight:600; color:#5b6abf; }
+.model-promo-table tr:hover td { background:rgba(196,18,48,0.02); }
+.model-promo-table .model-row { background:rgba(91,106,191,0.03); }
+.model-promo-table .model-row td:first-child { font-size:13px; }
+
+/* Plans table */
+.plans-section { margin-top:14px; }
+
 /* Collapsible */
-.collapsible-section .collapsible-header { cursor:pointer; user-select:none; }
-.collapsible-section .collapsible-arrow { transition:transform 0.3s; float:right; }
-.collapsible-section:not(.collapsed) .collapsible-arrow { transform:rotate(180deg); }
-.collapsible-body { max-height:0; overflow:hidden; transition:max-height 0.4s ease; }
-.collapsible-section:not(.collapsed) .collapsible-body { max-height:5000px; }
+.collapsible-header { display:flex; justify-content:space-between; align-items:center; cursor:pointer; padding-bottom:14px; margin-bottom:0; border-bottom:1px solid transparent; transition:all 0.2s; user-select:none; }
+.collapsible-header:hover { border-bottom-color:#e8ecf1; }
+.collapsible-header .section-title { margin-bottom:0; }
+.collapsible-arrow { font-size:14px; color:#999; transition:transform 0.3s ease; width:28px; height:28px; display:flex; align-items:center; justify-content:center; border-radius:50%; background:#f5f7fa; }
+.collapsible-header:hover .collapsible-arrow { background:#e8ecf1; color:#666; }
+.collapsible-section.collapsed .collapsible-arrow { transform:rotate(-90deg); }
+.collapsible-body { overflow:hidden; transition:max-height 0.35s ease, opacity 0.25s ease; max-height:2000px; opacity:1; margin-top:14px; }
+.collapsible-section.collapsed .collapsible-body { max-height:0; opacity:0; margin-top:0; }
 
 /* Footer */
-.footer { text-align:center; padding:20px; color:#aaa; font-size:12px; }
+.footer { text-align:center; font-size:12px; color:#bbb; padding:24px 0; line-height:1.8; }
 
-/*compare table*/
-.compare-table { width:100%; border-collapse:collapse; margin:12px 0; font-size:13px; }
-.compare-table th { background:#f8f9fb; padding:8px 12px; text-align:left; border-bottom:2px solid #e8ecf1; }
-.compare-table td { padding:8px 12px; border-bottom:1px solid #f0f2f5; }
-.compare-table .up { color:#c41230; }
-.compare-table .down { color:#2e7d32; }
+/* Charts */
+.chart-container { position:relative; height:320px; margin-top:12px; }
 </style>
 </head>
 <body>
@@ -113,12 +125,12 @@ body { font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaH
 <div class="header">
   <div class="header-top">
     <div class="header-left">
-      <div class="brand">TOWERTOP</div>
-      <div class="title">京东自营日报</div>
+      <div class="brand">TOWERTOP京东自营旗舰店</div>
+      <div class="title">每日销售日报</div>
       <div class="date">2026年05月22日 星期五</div>
     </div>
     <div class="header-right">
-      <label>切换型号：</label>
+      <label>选择型号：</label>
       <select class="model-select" id="modelSelector">
         <option value="all">全部型号</option>
         <option value="XM-8005">XM-8005</option><option value="TF1502黑">TF1502黑</option><option value="TF1502蓝">TF1502蓝</option><option value="TF1503黑">TF1503黑</option><option value="G008绿">G008绿</option>
@@ -127,13 +139,13 @@ body { font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaH
   </div>
   <div class="header-progress">
     <div class="hp-row">
-      <span class="hp-label">月度完成率</span>
-      <span class="hp-value" id="headerRate">35.8%</span>
+      <span class="hp-label">本月累计销售额</span>
+      <span class="hp-value">¥28,619 / 目标 ¥80,000</span>
     </div>
     <div class="hp-bar">
-      <div class="hp-fill" id="headerBar" style="width:35.8%"></div>
+      <div class="hp-fill" style="width:35.8%"></div>
     </div>
-    <div class="hp-target">目标 ¥80,000 · 时间进度 64.5%</div>
+    <div class="hp-target">完成 35.8%</div>
   </div>
 </div>
 
@@ -150,13 +162,13 @@ body { font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaH
 <!-- ===== 销售趋势图 ===== -->
 <div class="section">
   <div class="section-title"><span class="icon">📈</span> 销售趋势</div>
-  <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:16px;">
-    <div class="range-tabs" id="rangeTabs">
-      <button class="range-tab active" data-range="7">7天</button>
-      <button class="range-tab" data-range="15">15天</button>
+  <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:center; margin-bottom:14px;">
+    <div class="range-tabs" id="trendRange">
+      <button class="range-tab active" data-range="7">近7天</button>
+      <button class="range-tab" data-range="15">近15天</button>
     </div>
   </div>
-  <div style="position:relative; height:320px;">
+  <div class="chart-container">
     <canvas id="trendChart"></canvas>
   </div>
 </div>
@@ -249,19 +261,31 @@ body { font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaH
 </div>
 
 <!-- ===== 快车计划明细 ===== -->
-<div class="section collapsible-section collapsed" id="plansSection">
-  <div class="collapsible-header" onclick="toggleCollapse('plansSection')">
-    <div class="section-title"><span class="icon">📋</span> 快车计划明细</div>
-    <span class="collapsible-arrow">▼</span>
+<div class="section">
+  <div class="section-title"><span class="icon">🗂</span> 快车计划明细</div>
+  <div class="sub-tabs" id="plansTabs">
+    <button class="sub-tab active" data-view="today">当日数据</button>
+    <button class="sub-tab" data-view="cumul">月度数据</button>
   </div>
-  <div class="collapsible-body">
-    <div class="sub-tabs" id="plansTabs">
-      <button class="sub-tab active" data-view="today">当日数据</button>
-      <button class="sub-tab" data-view="cumul">月度数据</button>
-    </div>
-    <div class="detail-scroll">
-      <table class="data-table">
-        <thead id="plansThead"></thead>
+  <div class="plans-section">
+    <div class="table-wrap">
+      <table class="data-table" id="plansTable">
+        <thead>
+          <tr>
+            <th>推广计划</th>
+            <th>型号</th>
+            <th style="text-align:right">花费</th>
+            <th style="text-align:right">展现数</th>
+            <th style="text-align:right">点击数</th>
+            <th style="text-align:right">点击率</th>
+            <th style="text-align:right">均点击成本</th>
+            <th style="text-align:right">订单行</th>
+            <th style="text-align:right">订单金额</th>
+            <th style="text-align:right">转化率</th>
+            <th style="text-align:right">ROI</th>
+            <th style="text-align:right">加购数</th>
+          </tr>
+        </thead>
         <tbody id="plansBody"></tbody>
       </table>
     </div>
@@ -307,14 +331,14 @@ body { font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaH
 <!-- ===== Footer ===== -->
 <div class="footer">
   TOWERTOP 京东自营旗舰店 · 数据来源：商智自营版 & 京准通<br>
-  报告生成时间：2026-05-23 11:34:00
+  报告生成时间：2026-05-23 11:49:38
 </div>
 
 </div>
 
 <script>
 // ======== 全局数据 ========
-var D = {"today": {"date": "2026-05-22 00:00:00", "pv": 304, "uv": 119, "items": 5, "amount": 783.0, "orders": 5, "conv_rate": 4.201680672268908, "date_str": "05/22", "amount_change": -4.278728606356968, "items_change": 25.0, "pv_change": -28.30188679245283, "uv_change": -45.412844036697244, "conv_change": 2.3668182869478067, "last_week_amount": 1799.0, "last_week_items": 11, "last_week_pv": 523, "last_week_uv": 223, "last_week_conv_rate": 4.932735426008969, "last_month_amount": 0, "last_month_items": 0, "last_month_pv": 0, "last_month_uv": 0, "last_month_conv_rate": 0, "add_to_cart": 0, "add_to_cart_change": 0}, "cumul": {"pv": 10049, "uv": 4284, "items": 137, "amount": 28619.0, "orders": 136, "conv_rate": 3.1746031746031744, "add_to_cart": 0}, "daily": [{"date": "2026-05-01 00:00:00", "date_str": "05/01", "pv": 380, "uv": 183, "items": 3, "amount": 797.0, "orders": 3, "conv_rate": 1.639344262295082, "add_to_cart": 0}, {"date": "2026-05-02 00:00:00", "date_str": "05/02", "pv": 498, "uv": 217, "items": 5, "amount": 1135.0, "orders": 5, "conv_rate": 2.3041474654377883, "add_to_cart": 0}, {"date": "2026-05-03 00:00:00", "date_str": "05/03", "pv": 549, "uv": 239, "items": 9, "amount": 2201.0, "orders": 9, "conv_rate": 3.765690376569038, "add_to_cart": 0}, {"date": "2026-05-04 00:00:00", "date_str": "05/04", "pv": 434, "uv": 216, "items": 6, "amount": 1384.0, "orders": 6, "conv_rate": 2.7777777777777777, "add_to_cart": 0}, {"date": "2026-05-05 00:00:00", "date_str": "05/05", "pv": 574, "uv": 217, "items": 6, "amount": 1394.0, "orders": 6, "conv_rate": 2.7649769585253456, "add_to_cart": 0}, {"date": "2026-05-06 00:00:00", "date_str": "05/06", "pv": 339, "uv": 166, "items": 3, "amount": 727.0, "orders": 3, "conv_rate": 1.8072289156626504, "add_to_cart": 0}, {"date": "2026-05-07 00:00:00", "date_str": "05/07", "pv": 493, "uv": 170, "items": 5, "amount": 1125.0, "orders": 5, "conv_rate": 2.941176470588235, "add_to_cart": 0}, {"date": "2026-05-08 00:00:00", "date_str": "05/08", "pv": 258, "uv": 127, "items": 1, "amount": 269.0, "orders": 1, "conv_rate": 0.7874015748031495, "add_to_cart": 0}, {"date": "2026-05-09 00:00:00", "date_str": "05/09", "pv": 344, "uv": 144, "items": 3, "amount": 703.0, "orders": 3, "conv_rate": 2.083333333333333, "add_to_cart": 0}, {"date": "2026-05-10 00:00:00", "date_str": "05/10", "pv": 114, "uv": 62, "items": 0, "amount": 0.0, "orders": 0, "conv_rate": 0.0, "add_to_cart": 0}, {"date": "2026-05-11 00:00:00", "date_str": "05/11", "pv": 654, "uv": 225, "items": 7, "amount": 1605.0, "orders": 6, "conv_rate": 2.666666666666667, "add_to_cart": 0}, {"date": "2026-05-12 00:00:00", "date_str": "05/12", "pv": 667, "uv": 265, "items": 8, "amount": 1592.0, "orders": 8, "conv_rate": 3.018867924528302, "add_to_cart": 0}, {"date": "2026-05-13 00:00:00", "date_str": "05/13", "pv": 510, "uv": 198, "items": 10, "amount": 2184.0, "orders": 10, "conv_rate": 5.05050505050505, "add_to_cart": 0}, {"date": "2026-05-14 00:00:00", "date_str": "05/14", "pv": 557, "uv": 209, "items": 12, "amount": 2334.0, "orders": 12, "conv_rate": 5.741626794258373, "add_to_cart": 0}, {"date": "2026-05-15 00:00:00", "date_str": "05/15", "pv": 523, "uv": 223, "items": 11, "amount": 1799.0, "orders": 11, "conv_rate": 4.932735426008969, "add_to_cart": 0}, {"date": "2026-05-16 00:00:00", "date_str": "05/16", "pv": 414, "uv": 200, "items": 7, "amount": 1273.0, "orders": 7, "conv_rate": 3.5000000000000004, "add_to_cart": 0}, {"date": "2026-05-17 00:00:00", "date_str": "05/17", "pv": 538, "uv": 225, "items": 12, "amount": 2444.0, "orders": 12, "conv_rate": 5.333333333333334, "add_to_cart": 0}, {"date": "2026-05-18 00:00:00", "date_str": "05/18", "pv": 425, "uv": 177, "items": 7, "amount": 1283.0, "orders": 7, "conv_rate": 3.954802259887006, "add_to_cart": 0}, {"date": "2026-05-19 00:00:00", "date_str": "05/19", "pv": 498, "uv": 230, "items": 9, "amount": 1801.0, "orders": 9, "conv_rate": 3.91304347826087, "add_to_cart": 0}, {"date": "2026-05-20 00:00:00", "date_str": "05/20", "pv": 552, "uv": 254, "items": 4, "amount": 968.0, "orders": 4, "conv_rate": 1.574803149606299, "add_to_cart": 0}, {"date": "2026-05-21 00:00:00", "date_str": "05/21", "pv": 424, "uv": 218, "items": 4, "amount": 818.0, "orders": 4, "conv_rate": 1.834862385321101, "add_to_cart": 0}, {"date": "2026-05-22 00:00:00", "date_str": "05/22", "pv": 304, "uv": 119, "items": 5, "amount": 783.0, "orders": 5, "conv_rate": 4.201680672268908, "add_to_cart": 0}], "trend": [["05/08", 269.0, 1, 258, 127, 0], ["05/09", 703.0, 3, 344, 144, 0], ["05/10", 0.0, 0, 114, 62, 0], ["05/11", 1605.0, 7, 654, 225, 0], ["05/12", 1592.0, 8, 667, 265, 0], ["05/13", 2184.0, 10, 510, 198, 0], ["05/14", 2334.0, 12, 557, 209, 0], ["05/15", 1799.0, 11, 523, 223, 0], ["05/16", 1273.0, 7, 414, 200, 0], ["05/17", 2444.0, 12, 538, 225, 0], ["05/18", 1283.0, 7, 425, 177, 0], ["05/19", 1801.0, 9, 498, 230, 0], ["05/20", 968.0, 4, 552, 254, 0], ["05/21", 818.0, 4, 424, 218, 0], ["05/22", 783.0, 5, 304, 119, 0]], "expressToday": {"spend": 563.11, "impressions": 3504, "clicks": 166, "ctr": 4.737442922374429, "avg_click_cost": 3.392228915662651, "orders": 2, "order_amount": 310.0, "conv_rate": 1.2048192771084338, "roi": 0.5505141091438618, "add_to_cart": 25, "cost_rate": 71.91698595146872, "spend_change": -8.415060583882232, "impressions_change": -9.597523219814242, "clicks_change": -22.429906542056074, "orders_change": 0.0, "order_amount_change": 0.0, "add_to_cart_change": 0.0, "ctr_change": -0.7837129083789254, "avg_click_cost_change": 0.519098074541156, "conv_rate_change": 0.2702398378560975, "roi_change": 0.046326095807275536, "cost_rate_change": -16.69032258064513}, "expressCumul": {"spend": 7775.929999999999, "impressions": 65762, "clicks": 2835, "ctr": 4.311000273714303, "avg_click_cost": 2.742832451499118, "orders": 49, "order_amount": 8320.0, "conv_rate": 1.728395061728395, "roi": 1.0699684796545237, "add_to_cart": 380, "cost_rate": 27.17051609070897}, "expressDaily": [{"date_str": "05/01", "spend": 175.97, "impressions": 2173, "clicks": 121, "ctr": 5.568338702254947, "avg_click_cost": 1.454297520661157, "orders": 0, "order_amount": 0.0, "conv_rate": 0.0, "roi": 0.0, "add_to_cart": 5, "cost_rate": 0}, {"date_str": "05/02", "spend": 168.82, "impressions": 2127, "clicks": 125, "ctr": 5.876821814762576, "avg_click_cost": 1.35056, "orders": 0, "order_amount": 0.0, "conv_rate": 0.0, "roi": 0.0, "add_to_cart": 8, "cost_rate": 0}, {"date_str": "05/03", "spend": 171.05, "impressions": 2512, "clicks": 120, "ctr": 4.777070063694268, "avg_click_cost": 1.4254166666666668, "orders": 0, "order_amount": 0.0, "conv_rate": 0.0, "roi": 0.0, "add_to_cart": 12, "cost_rate": 0}, {"date_str": "05/04", "spend": 168.76, "impressions": 3269, "clicks": 119, "ctr": 3.640256959314775, "avg_click_cost": 1.4181512605042017, "orders": 1, "order_amount": 259.0, "conv_rate": 0.8403361344537815, "roi": 1.534723868215217, "add_to_cart": 2, "cost_rate": 65.15830115830116}, {"date_str": "05/05", "spend": 156.25, "impressions": 2697, "clicks": 110, "ctr": 4.078605858361143, "avg_click_cost": 1.4204545454545454, "orders": 0, "order_amount": 0.0, "conv_rate": 0.0, "roi": 0.0, "add_to_cart": 6, "cost_rate": 0}, {"date_str": "05/06", "spend": 152.97, "impressions": 2349, "clicks": 109, "ctr": 4.640272456364411, "avg_click_cost": 1.4033944954128441, "orders": 0, "order_amount": 0.0, "conv_rate": 0.0, "roi": 0.0, "add_to_cart": 8, "cost_rate": 0}, {"date_str": "05/07", "spend": 146.29000000000002, "impressions": 2320, "clicks": 99, "ctr": 4.267241379310345, "avg_click_cost": 1.477676767676768, "orders": 0, "order_amount": 0.0, "conv_rate": 0.0, "roi": 0.0, "add_to_cart": 12, "cost_rate": 0}, {"date_str": "05/08", "spend": 133.59, "impressions": 1940, "clicks": 88, "ctr": 4.536082474226804, "avg_click_cost": 1.5180681818181818, "orders": 0, "order_amount": 0.0, "conv_rate": 0.0, "roi": 0.0, "add_to_cart": 3, "cost_rate": 0}, {"date_str": "05/09", "spend": 154.42000000000002, "impressions": 2141, "clicks": 112, "ctr": 5.2312003736571695, "avg_click_cost": 1.3787500000000001, "orders": 0, "order_amount": 0.0, "conv_rate": 0.0, "roi": 0.0, "add_to_cart": 4, "cost_rate": 0}, {"date_str": "05/10", "spend": 34.03, "impressions": 853, "clicks": 39, "ctr": 4.572098475967175, "avg_click_cost": 0.8725641025641026, "orders": 0, "order_amount": 0.0, "conv_rate": 0.0, "roi": 0.0, "add_to_cart": 3, "cost_rate": 0}, {"date_str": "05/11", "spend": 451.20000000000005, "impressions": 4084, "clicks": 173, "ctr": 4.236043095004898, "avg_click_cost": 2.6080924855491334, "orders": 3, "order_amount": 828.0, "conv_rate": 1.7341040462427744, "roi": 1.8351063829787233, "add_to_cart": 27, "cost_rate": 54.492753623188406}, {"date_str": "05/12", "spend": 692.52, "impressions": 6099, "clicks": 198, "ctr": 3.246433841613379, "avg_click_cost": 3.4975757575757576, "orders": 5, "order_amount": 919.0, "conv_rate": 2.525252525252525, "roi": 1.3270374862819847, "add_to_cart": 29, "cost_rate": 75.35582154515778}, {"date_str": "05/13", "spend": 610.63, "impressions": 5276, "clicks": 171, "ctr": 3.2410917361637606, "avg_click_cost": 3.57093567251462, "orders": 2, "order_amount": 330.0, "conv_rate": 1.1695906432748537, "roi": 0.5404254622275355, "add_to_cart": 25, "cost_rate": 185.03939393939396}, {"date_str": "05/14", "spend": 584.73, "impressions": 3593, "clicks": 141, "ctr": 3.92429724464236, "avg_click_cost": 4.147021276595745, "orders": 6, "order_amount": 1024.0, "conv_rate": 4.25531914893617, "roi": 1.751235613017974, "add_to_cart": 42, "cost_rate": 57.1025390625}, {"date_str": "05/15", "spend": 614.9300000000001, "impressions": 2896, "clicks": 142, "ctr": 4.903314917127072, "avg_click_cost": 4.330492957746479, "orders": 10, "order_amount": 1550.0, "conv_rate": 7.042253521126761, "roi": 2.520612102190493, "add_to_cart": 40, "cost_rate": 39.67290322580646}, {"date_str": "05/16", "spend": 546.13, "impressions": 3419, "clicks": 138, "ctr": 4.0362679145949105, "avg_click_cost": 3.957463768115942, "orders": 5, "order_amount": 775.0, "conv_rate": 3.6231884057971016, "roi": 1.4190760441653087, "add_to_cart": 28, "cost_rate": 70.4683870967742}, {"date_str": "05/17", "spend": 574.67, "impressions": 3951, "clicks": 142, "ctr": 3.5940268286509744, "avg_click_cost": 4.046971830985915, "orders": 5, "order_amount": 775.0, "conv_rate": 3.5211267605633805, "roi": 1.3486000661249065, "add_to_cart": 22, "cost_rate": 74.15096774193547}, {"date_str": "05/18", "spend": 524.6500000000001, "impressions": 3328, "clicks": 133, "ctr": 3.9963942307692304, "avg_click_cost": 3.944736842105264, "orders": 4, "order_amount": 620.0, "conv_rate": 3.007518796992481, "roi": 1.1817402077575525, "add_to_cart": 26, "cost_rate": 84.62096774193549}, {"date_str": "05/19", "spend": 536.36, "impressions": 3355, "clicks": 175, "ctr": 5.216095380029806, "avg_click_cost": 3.064914285714286, "orders": 4, "order_amount": 620.0, "conv_rate": 2.2857142857142856, "roi": 1.1559400402714595, "add_to_cart": 28, "cost_rate": 86.50967741935483}, {"date_str": "05/20", "spend": 614.8499999999999, "impressions": 3876, "clicks": 214, "ctr": 5.521155830753354, "avg_click_cost": 2.873130841121495, "orders": 2, "order_amount": 310.0, "conv_rate": 0.9345794392523363, "roi": 0.5041880133365862, "add_to_cart": 25, "cost_rate": 198.33870967741933}, {"date_str": "05/21", "spend": 563.11, "impressions": 3504, "clicks": 166, "ctr": 4.737442922374429, "avg_click_cost": 3.392228915662651, "orders": 2, "order_amount": 310.0, "conv_rate": 1.2048192771084338, "roi": 0.5505141091438618, "add_to_cart": 25, "cost_rate": 181.6483870967742}], "expressByModelToday": {"XM-8005": {"spend": 0, "impressions": 0, "clicks": 0, "ctr": 0, "avg_click_cost": 0, "orders": 0, "order_amount": 0, "conv_rate": 0, "roi": 0, "add_to_cart": 0, "cost_rate": 0}, "TF1502黑": {"spend": 0, "impressions": 0, "clicks": 0, "ctr": 0, "avg_click_cost": 0, "orders": 0, "order_amount": 0, "conv_rate": 0, "roi": 0, "add_to_cart": 0, "cost_rate": 0}, "TF1502蓝": {"spend": 0, "impressions": 0, "clicks": 0, "ctr": 0, "avg_click_cost": 0, "orders": 0, "order_amount": 0, "conv_rate": 0, "roi": 0, "add_to_cart": 0, "cost_rate": 0}, "TF1503黑": {"spend": 0, "impressions": 0, "clicks": 0, "ctr": 0, "avg_click_cost": 0, "orders": 0, "order_amount": 0, "conv_rate": 0, "roi": 0, "add_to_cart": 0, "cost_rate": 0}, "G008绿": {"spend": 0, "impressions": 0, "clicks": 0, "ctr": 0, "avg_click_cost": 0, "orders": 0, "order_amount": 0, "conv_rate": 0, "roi": 0, "add_to_cart": 0, "cost_rate": 0}}, "expressByModelCumul": {"XM-8005": {"spend": 0, "impressions": 0, "clicks": 0, "ctr": 0, "avg_click_cost": 0, "orders": 0, "order_amount": 0, "conv_rate": 0, "roi": 0, "add_to_cart": 0, "cost_rate": 0}, "TF1502黑": {"spend": 0, "impressions": 0, "clicks": 0, "ctr": 0, "avg_click_cost": 0, "orders": 0, "order_amount": 0, "conv_rate": 0, "roi": 0, "add_to_cart": 0, "cost_rate": 0}, "TF1502蓝": {"spend": 0, "impressions": 0, "clicks": 0, "ctr": 0, "avg_click_cost": 0, "orders": 0, "order_amount": 0, "conv_rate": 0, "roi": 0, "add_to_cart": 0, "cost_rate": 0}, "TF1503黑": {"spend": 0, "impressions": 0, "clicks": 0, "ctr": 0, "avg_click_cost": 0, "orders": 0, "order_amount": 0, "conv_rate": 0, "roi": 0, "add_to_cart": 0, "cost_rate": 0}, "G008绿": {"spend": 0, "impressions": 0, "clicks": 0, "ctr": 0, "avg_click_cost": 0, "orders": 0, "order_amount": 0, "conv_rate": 0, "roi": 0, "add_to_cart": 0, "cost_rate": 0}}, "expressByModelDaily": {"XM-8005": [], "TF1502黑": [], "TF1502蓝": [], "TF1503黑": [], "G008绿": []}, "expressPlansToday": [{"plan_name": "XM-8005", "型号": "", "spend": 324.93, "impressions": 2783, "clicks": 139, "ctr": 4.99, "avg_click_cost": 2.34, "orders": 1, "order_amount": 155.0, "conv_rate": 0.72, "roi": 0.48, "add_to_cart": 9}, {"plan_name": "全店推广计划", "型号": "", "spend": 197.86, "impressions": 395, "clicks": 16, "ctr": 4.05, "avg_click_cost": 12.37, "orders": 1, "order_amount": 155.0, "conv_rate": 6.25, "roi": 0.78, "add_to_cart": 5}, {"plan_name": "XM-8005智能推广", "型号": "", "spend": 40.32, "impressions": 326, "clicks": 11, "ctr": 3.37, "avg_click_cost": 3.67, "orders": 0, "order_amount": 0.0, "conv_rate": 0.0, "roi": 0.0, "add_to_cart": 9}, {"plan_name": "TF1503新品推广", "型号": "", "spend": 0.0, "impressions": 0, "clicks": 0, "ctr": 0.0, "avg_click_cost": 0.0, "orders": 0, "order_amount": 0.0, "conv_rate": 0.0, "roi": 0.0, "add_to_cart": 2}], "expressPlansCumulative": [{"plan_name": "XM-8005", "型号": "", "spend": 1881.6699999999998, "impressions": 21657, "clicks": 975, "orders": 5, "order_amount": 775.0, "add_to_cart": 111, "ctr": 4.502008588447153, "avg_click_cost": 1.9299179487179485, "conv_rate": 0.5128205128205128, "roi": 0.41186818092439165}, {"plan_name": "全店推广计划", "型号": "", "spend": 1193.68, "impressions": 3886, "clicks": 162, "orders": 10, "order_amount": 1644.0, "add_to_cart": 31, "ctr": 4.1688111168296444, "avg_click_cost": 7.368395061728395, "conv_rate": 6.172839506172839, "roi": 1.3772535352858386}, {"plan_name": "XM-8005智能推广", "型号": "", "spend": 1122.34, "impressions": 8210, "clicks": 257, "orders": 10, "order_amount": 1580.0, "add_to_cart": 74, "ctr": 3.1303288672350793, "avg_click_cost": 4.367081712062257, "conv_rate": 3.8910505836575875, "roi": 1.4077730456011548}, {"plan_name": "关键词智配", "型号": "", "spend": 992.2099999999999, "impressions": 11742, "clicks": 521, "orders": 2, "order_amount": 757.0, "add_to_cart": 39, "ctr": 4.437063532617953, "avg_click_cost": 1.904433781190019, "conv_rate": 0.3838771593090211, "roi": 0.7629433285292428}, {"plan_name": "XM-8005投产比控制", "型号": "", "spend": 957.1399999999999, "impressions": 3347, "clicks": 164, "orders": 12, "order_amount": 1984.0, "add_to_cart": 46, "ctr": 4.899910367493278, "avg_click_cost": 5.836219512195121, "conv_rate": 7.317073170731707, "roi": 2.0728420084836077}, {"plan_name": "XM-8005成本控制", "型号": "", "spend": 956.1800000000001, "impressions": 2971, "clicks": 145, "orders": 10, "order_amount": 1580.0, "add_to_cart": 50, "ctr": 4.880511612251767, "avg_click_cost": 6.594344827586207, "conv_rate": 6.896551724137931, "roi": 1.6524085423246668}, {"plan_name": "关键词 大词", "型号": "", "spend": 500.84, "impressions": 11224, "clicks": 551, "orders": 0, "order_amount": 0.0, "add_to_cart": 26, "ctr": 4.909123307198859, "avg_click_cost": 0.9089655172413793, "conv_rate": 0.0, "roi": 0.0}, {"plan_name": "TF1503新品推广", "型号": "", "spend": 140.6, "impressions": 2687, "clicks": 57, "orders": 0, "order_amount": 0.0, "add_to_cart": 3, "ctr": 2.1213248976553776, "avg_click_cost": 2.466666666666667, "conv_rate": 0.0, "roi": 0.0}, {"plan_name": "TF1503智能推广", "型号": "", "spend": 31.27, "impressions": 38, "clicks": 3, "orders": 0, "order_amount": 0.0, "add_to_cart": 0, "ctr": 7.894736842105263, "avg_click_cost": 10.423333333333334, "conv_rate": 0.0, "roi": 0.0}], "siteToday": {"spend": 11.37, "roi": 0.0, "orders": 0, "amount": 0.0, "order_cost": 0.0, "cost_rate": 1.4521072796934864, "spend_change": -95.32694915950844, "amount_change": -100.0, "orders_change": -100.0, "roi_change": -2.09, "order_cost_change": -121.66}, "siteCumul": {"spend": 7738.02, "roi": 2.0935588173718855, "orders": 66, "amount": 16200.0, "order_cost": 117.24272727272728, "cost_rate": 27.03805164401272}, "siteDaily": [{"date_str": "05/01", "spend": 446.89, "roi": 1.2, "orders": 2, "amount": 538.0, "order_cost": 223.445, "cost_rate": 0}, {"date_str": "05/02", "spend": 747.13, "roi": 1.87, "orders": 6, "amount": 1394.0, "order_cost": 124.52166666666666, "cost_rate": 0}, {"date_str": "05/03", "spend": 738.79, "roi": 2.63, "orders": 8, "amount": 1942.0, "order_cost": 92.34875, "cost_rate": 0}, {"date_str": "05/04", "spend": 541.84, "roi": 1.6, "orders": 4, "amount": 866.0, "order_cost": 135.46, "cost_rate": 0}, {"date_str": "05/05", "spend": 503.95, "roi": 2.25, "orders": 5, "amount": 1135.0, "order_cost": 100.78999999999999, "cost_rate": 0}, {"date_str": "05/06", "spend": 239.72, "roi": 1.95, "orders": 2, "amount": 468.0, "order_cost": 119.86, "cost_rate": 0}, {"date_str": "05/07", "spend": 406.45, "roi": 2.13, "orders": 4, "amount": 866.0, "order_cost": 101.6125, "cost_rate": 0}, {"date_str": "05/08", "spend": 163.93, "roi": 1.64, "orders": 1, "amount": 269.0, "order_cost": 163.93, "cost_rate": 0}, {"date_str": "05/09", "spend": 153.71, "roi": 2.89, "orders": 2, "amount": 444.0, "order_cost": 76.855, "cost_rate": 0}, {"date_str": "05/10", "spend": 20.04, "roi": 0.0, "orders": 0, "amount": 0.0, "order_cost": 0, "cost_rate": 0}, {"date_str": "05/11", "spend": 440.72, "roi": 1.18, "orders": 2, "amount": 518.0, "order_cost": 220.36, "cost_rate": 0}, {"date_str": "05/12", "spend": 443.69, "roi": 1.14, "orders": 2, "amount": 508.0, "order_cost": 221.845, "cost_rate": 0}, {"date_str": "05/13", "spend": 453.02, "roi": 3.36, "orders": 6, "amount": 1524.0, "order_cost": 75.50333333333333, "cost_rate": 0}, {"date_str": "05/14", "spend": 487.82, "roi": 1.57, "orders": 3, "amount": 767.0, "order_cost": 162.60666666666665, "cost_rate": 0}, {"date_str": "05/15", "spend": 315.74, "roi": 0.79, "orders": 1, "amount": 249.0, "order_cost": 315.74, "cost_rate": 0}, {"date_str": "05/16", "spend": 154.96, "roi": 3.21, "orders": 2, "amount": 498.0, "order_cost": 77.48, "cost_rate": 0}, {"date_str": "05/17", "spend": 433.89, "roi": 3.49, "orders": 6, "amount": 1514.0, "order_cost": 72.315, "cost_rate": 0}, {"date_str": "05/18", "spend": 151.99, "roi": 3.34, "orders": 2, "amount": 508.0, "order_cost": 75.995, "cost_rate": 0}, {"date_str": "05/19", "spend": 431.81, "roi": 2.98, "orders": 5, "amount": 1285.0, "order_cost": 86.362, "cost_rate": 0}, {"date_str": "05/20", "spend": 207.25, "roi": 1.93, "orders": 1, "amount": 399.0, "order_cost": 207.25, "cost_rate": 0}, {"date_str": "05/21", "spend": 243.31, "roi": 2.09, "orders": 2, "amount": 508.0, "order_cost": 121.655, "cost_rate": 0}, {"date_str": "05/22", "spend": 11.37, "roi": 0.0, "orders": 0, "amount": 0.0, "order_cost": 0, "cost_rate": 0}], "skuTodayByModel": [], "skuCumulByModel": [], "skuDailyByModel": {"XM-8005": [], "TF1502黑": [], "TF1502蓝": [], "TF1503黑": [], "G008绿": []}, "skuTrendByModel": {"XM-8005": [], "TF1502黑": [], "TF1502蓝": [], "TF1503黑": [], "G008绿": []}, "alerts": [{"icon": "🔴", "msg": "快车ROI偏低0.55"}], "model_rank_change": [], "last_week": {"date": "2026-05-15 00:00:00", "amount": 1799.0, "items": 11}, "last_month": {"date": "2026-04-22 00:00:00", "amount": 0, "items": 0}, "month_progress": {"amount": 28619.0, "target": 80000.0, "rate": 35.77375, "time_progress": 64.5161290322581}};
+var D = {"today": {"date": "2026-05-22 00:00:00", "pv": 304, "uv": 119, "items": 5, "amount": 783.0, "orders": 5, "conv_rate": 4.201680672268908, "date_str": "05/22", "amount_change": -4.278728606356968, "items_change": 25.0, "pv_change": -28.30188679245283, "uv_change": -45.412844036697244, "conv_change": 2.3668182869478067, "last_week_amount": 1799.0, "last_week_items": 11, "last_week_pv": 523, "last_week_uv": 223, "last_week_conv_rate": 4.932735426008969, "last_month_amount": 0, "last_month_items": 0, "last_month_pv": 0, "last_month_uv": 0, "last_month_conv_rate": 0, "add_to_cart": 0, "add_to_cart_change": 0}, "cumul": {"pv": 10049, "uv": 4284, "items": 137, "amount": 28619.0, "orders": 136, "conv_rate": 3.1746031746031744, "add_to_cart": 0}, "daily": [{"date": "2026-05-01 00:00:00", "date_str": "05/01", "pv": 380, "uv": 183, "items": 3, "amount": 797.0, "orders": 3, "conv_rate": 1.639344262295082, "add_to_cart": 0}, {"date": "2026-05-02 00:00:00", "date_str": "05/02", "pv": 498, "uv": 217, "items": 5, "amount": 1135.0, "orders": 5, "conv_rate": 2.3041474654377883, "add_to_cart": 0}, {"date": "2026-05-03 00:00:00", "date_str": "05/03", "pv": 549, "uv": 239, "items": 9, "amount": 2201.0, "orders": 9, "conv_rate": 3.765690376569038, "add_to_cart": 0}, {"date": "2026-05-04 00:00:00", "date_str": "05/04", "pv": 434, "uv": 216, "items": 6, "amount": 1384.0, "orders": 6, "conv_rate": 2.7777777777777777, "add_to_cart": 0}, {"date": "2026-05-05 00:00:00", "date_str": "05/05", "pv": 574, "uv": 217, "items": 6, "amount": 1394.0, "orders": 6, "conv_rate": 2.7649769585253456, "add_to_cart": 0}, {"date": "2026-05-06 00:00:00", "date_str": "05/06", "pv": 339, "uv": 166, "items": 3, "amount": 727.0, "orders": 3, "conv_rate": 1.8072289156626504, "add_to_cart": 0}, {"date": "2026-05-07 00:00:00", "date_str": "05/07", "pv": 493, "uv": 170, "items": 5, "amount": 1125.0, "orders": 5, "conv_rate": 2.941176470588235, "add_to_cart": 0}, {"date": "2026-05-08 00:00:00", "date_str": "05/08", "pv": 258, "uv": 127, "items": 1, "amount": 269.0, "orders": 1, "conv_rate": 0.7874015748031495, "add_to_cart": 0}, {"date": "2026-05-09 00:00:00", "date_str": "05/09", "pv": 344, "uv": 144, "items": 3, "amount": 703.0, "orders": 3, "conv_rate": 2.083333333333333, "add_to_cart": 0}, {"date": "2026-05-10 00:00:00", "date_str": "05/10", "pv": 114, "uv": 62, "items": 0, "amount": 0.0, "orders": 0, "conv_rate": 0.0, "add_to_cart": 0}, {"date": "2026-05-11 00:00:00", "date_str": "05/11", "pv": 654, "uv": 225, "items": 7, "amount": 1605.0, "orders": 6, "conv_rate": 2.666666666666667, "add_to_cart": 0}, {"date": "2026-05-12 00:00:00", "date_str": "05/12", "pv": 667, "uv": 265, "items": 8, "amount": 1592.0, "orders": 8, "conv_rate": 3.018867924528302, "add_to_cart": 0}, {"date": "2026-05-13 00:00:00", "date_str": "05/13", "pv": 510, "uv": 198, "items": 10, "amount": 2184.0, "orders": 10, "conv_rate": 5.05050505050505, "add_to_cart": 0}, {"date": "2026-05-14 00:00:00", "date_str": "05/14", "pv": 557, "uv": 209, "items": 12, "amount": 2334.0, "orders": 12, "conv_rate": 5.741626794258373, "add_to_cart": 0}, {"date": "2026-05-15 00:00:00", "date_str": "05/15", "pv": 523, "uv": 223, "items": 11, "amount": 1799.0, "orders": 11, "conv_rate": 4.932735426008969, "add_to_cart": 0}, {"date": "2026-05-16 00:00:00", "date_str": "05/16", "pv": 414, "uv": 200, "items": 7, "amount": 1273.0, "orders": 7, "conv_rate": 3.5000000000000004, "add_to_cart": 0}, {"date": "2026-05-17 00:00:00", "date_str": "05/17", "pv": 538, "uv": 225, "items": 12, "amount": 2444.0, "orders": 12, "conv_rate": 5.333333333333334, "add_to_cart": 0}, {"date": "2026-05-18 00:00:00", "date_str": "05/18", "pv": 425, "uv": 177, "items": 7, "amount": 1283.0, "orders": 7, "conv_rate": 3.954802259887006, "add_to_cart": 0}, {"date": "2026-05-19 00:00:00", "date_str": "05/19", "pv": 498, "uv": 230, "items": 9, "amount": 1801.0, "orders": 9, "conv_rate": 3.91304347826087, "add_to_cart": 0}, {"date": "2026-05-20 00:00:00", "date_str": "05/20", "pv": 552, "uv": 254, "items": 4, "amount": 968.0, "orders": 4, "conv_rate": 1.574803149606299, "add_to_cart": 0}, {"date": "2026-05-21 00:00:00", "date_str": "05/21", "pv": 424, "uv": 218, "items": 4, "amount": 818.0, "orders": 4, "conv_rate": 1.834862385321101, "add_to_cart": 0}, {"date": "2026-05-22 00:00:00", "date_str": "05/22", "pv": 304, "uv": 119, "items": 5, "amount": 783.0, "orders": 5, "conv_rate": 4.201680672268908, "add_to_cart": 0}], "trend": [["05/08", 269.0, 1, 258, 127, 0], ["05/09", 703.0, 3, 344, 144, 0], ["05/10", 0.0, 0, 114, 62, 0], ["05/11", 1605.0, 7, 654, 225, 0], ["05/12", 1592.0, 8, 667, 265, 0], ["05/13", 2184.0, 10, 510, 198, 0], ["05/14", 2334.0, 12, 557, 209, 0], ["05/15", 1799.0, 11, 523, 223, 0], ["05/16", 1273.0, 7, 414, 200, 0], ["05/17", 2444.0, 12, 538, 225, 0], ["05/18", 1283.0, 7, 425, 177, 0], ["05/19", 1801.0, 9, 498, 230, 0], ["05/20", 968.0, 4, 552, 254, 0], ["05/21", 818.0, 4, 424, 218, 0], ["05/22", 783.0, 5, 304, 119, 0]], "expressToday": {"spend": 563.11, "impressions": 3504, "clicks": 166, "ctr": 4.737442922374429, "avg_click_cost": 3.392228915662651, "orders": 2, "order_amount": 310.0, "conv_rate": 1.2048192771084338, "roi": 0.5505141091438618, "add_to_cart": 25, "cost_rate": 71.91698595146872, "spend_change": -8.415060583882232, "impressions_change": -9.597523219814242, "clicks_change": -22.429906542056074, "orders_change": 0.0, "order_amount_change": 0.0, "add_to_cart_change": 0.0, "ctr_change": -0.7837129083789254, "avg_click_cost_change": 0.519098074541156, "conv_rate_change": 0.2702398378560975, "roi_change": 0.046326095807275536, "cost_rate_change": -16.69032258064513}, "expressCumul": {"spend": 7775.929999999999, "impressions": 65762, "clicks": 2835, "ctr": 4.311000273714303, "avg_click_cost": 2.742832451499118, "orders": 49, "order_amount": 8320.0, "conv_rate": 1.728395061728395, "roi": 1.0699684796545237, "add_to_cart": 380, "cost_rate": 27.17051609070897}, "expressDaily": [{"date_str": "05/01", "spend": 175.97, "impressions": 2173, "clicks": 121, "ctr": 5.568338702254947, "avg_click_cost": 1.454297520661157, "orders": 0, "order_amount": 0.0, "conv_rate": 0.0, "roi": 0.0, "add_to_cart": 5, "cost_rate": 0}, {"date_str": "05/02", "spend": 168.82, "impressions": 2127, "clicks": 125, "ctr": 5.876821814762576, "avg_click_cost": 1.35056, "orders": 0, "order_amount": 0.0, "conv_rate": 0.0, "roi": 0.0, "add_to_cart": 8, "cost_rate": 0}, {"date_str": "05/03", "spend": 171.05, "impressions": 2512, "clicks": 120, "ctr": 4.777070063694268, "avg_click_cost": 1.4254166666666668, "orders": 0, "order_amount": 0.0, "conv_rate": 0.0, "roi": 0.0, "add_to_cart": 12, "cost_rate": 0}, {"date_str": "05/04", "spend": 168.76, "impressions": 3269, "clicks": 119, "ctr": 3.640256959314775, "avg_click_cost": 1.4181512605042017, "orders": 1, "order_amount": 259.0, "conv_rate": 0.8403361344537815, "roi": 1.534723868215217, "add_to_cart": 2, "cost_rate": 65.15830115830116}, {"date_str": "05/05", "spend": 156.25, "impressions": 2697, "clicks": 110, "ctr": 4.078605858361143, "avg_click_cost": 1.4204545454545454, "orders": 0, "order_amount": 0.0, "conv_rate": 0.0, "roi": 0.0, "add_to_cart": 6, "cost_rate": 0}, {"date_str": "05/06", "spend": 152.97, "impressions": 2349, "clicks": 109, "ctr": 4.640272456364411, "avg_click_cost": 1.4033944954128441, "orders": 0, "order_amount": 0.0, "conv_rate": 0.0, "roi": 0.0, "add_to_cart": 8, "cost_rate": 0}, {"date_str": "05/07", "spend": 146.29000000000002, "impressions": 2320, "clicks": 99, "ctr": 4.267241379310345, "avg_click_cost": 1.477676767676768, "orders": 0, "order_amount": 0.0, "conv_rate": 0.0, "roi": 0.0, "add_to_cart": 12, "cost_rate": 0}, {"date_str": "05/08", "spend": 133.59, "impressions": 1940, "clicks": 88, "ctr": 4.536082474226804, "avg_click_cost": 1.5180681818181818, "orders": 0, "order_amount": 0.0, "conv_rate": 0.0, "roi": 0.0, "add_to_cart": 3, "cost_rate": 0}, {"date_str": "05/09", "spend": 154.42000000000002, "impressions": 2141, "clicks": 112, "ctr": 5.2312003736571695, "avg_click_cost": 1.3787500000000001, "orders": 0, "order_amount": 0.0, "conv_rate": 0.0, "roi": 0.0, "add_to_cart": 4, "cost_rate": 0}, {"date_str": "05/10", "spend": 34.03, "impressions": 853, "clicks": 39, "ctr": 4.572098475967175, "avg_click_cost": 0.8725641025641026, "orders": 0, "order_amount": 0.0, "conv_rate": 0.0, "roi": 0.0, "add_to_cart": 3, "cost_rate": 0}, {"date_str": "05/11", "spend": 451.20000000000005, "impressions": 4084, "clicks": 173, "ctr": 4.236043095004898, "avg_click_cost": 2.6080924855491334, "orders": 3, "order_amount": 828.0, "conv_rate": 1.7341040462427744, "roi": 1.8351063829787233, "add_to_cart": 27, "cost_rate": 54.492753623188406}, {"date_str": "05/12", "spend": 692.52, "impressions": 6099, "clicks": 198, "ctr": 3.246433841613379, "avg_click_cost": 3.4975757575757576, "orders": 5, "order_amount": 919.0, "conv_rate": 2.525252525252525, "roi": 1.3270374862819847, "add_to_cart": 29, "cost_rate": 75.35582154515778}, {"date_str": "05/13", "spend": 610.63, "impressions": 5276, "clicks": 171, "ctr": 3.2410917361637606, "avg_click_cost": 3.57093567251462, "orders": 2, "order_amount": 330.0, "conv_rate": 1.1695906432748537, "roi": 0.5404254622275355, "add_to_cart": 25, "cost_rate": 185.03939393939396}, {"date_str": "05/14", "spend": 584.73, "impressions": 3593, "clicks": 141, "ctr": 3.92429724464236, "avg_click_cost": 4.147021276595745, "orders": 6, "order_amount": 1024.0, "conv_rate": 4.25531914893617, "roi": 1.751235613017974, "add_to_cart": 42, "cost_rate": 57.1025390625}, {"date_str": "05/15", "spend": 614.9300000000001, "impressions": 2896, "clicks": 142, "ctr": 4.903314917127072, "avg_click_cost": 4.330492957746479, "orders": 10, "order_amount": 1550.0, "conv_rate": 7.042253521126761, "roi": 2.520612102190493, "add_to_cart": 40, "cost_rate": 39.67290322580646}, {"date_str": "05/16", "spend": 546.13, "impressions": 3419, "clicks": 138, "ctr": 4.0362679145949105, "avg_click_cost": 3.957463768115942, "orders": 5, "order_amount": 775.0, "conv_rate": 3.6231884057971016, "roi": 1.4190760441653087, "add_to_cart": 28, "cost_rate": 70.4683870967742}, {"date_str": "05/17", "spend": 574.67, "impressions": 3951, "clicks": 142, "ctr": 3.5940268286509744, "avg_click_cost": 4.046971830985915, "orders": 5, "order_amount": 775.0, "conv_rate": 3.5211267605633805, "roi": 1.3486000661249065, "add_to_cart": 22, "cost_rate": 74.15096774193547}, {"date_str": "05/18", "spend": 524.6500000000001, "impressions": 3328, "clicks": 133, "ctr": 3.9963942307692304, "avg_click_cost": 3.944736842105264, "orders": 4, "order_amount": 620.0, "conv_rate": 3.007518796992481, "roi": 1.1817402077575525, "add_to_cart": 26, "cost_rate": 84.62096774193549}, {"date_str": "05/19", "spend": 536.36, "impressions": 3355, "clicks": 175, "ctr": 5.216095380029806, "avg_click_cost": 3.064914285714286, "orders": 4, "order_amount": 620.0, "conv_rate": 2.2857142857142856, "roi": 1.1559400402714595, "add_to_cart": 28, "cost_rate": 86.50967741935483}, {"date_str": "05/20", "spend": 614.8499999999999, "impressions": 3876, "clicks": 214, "ctr": 5.521155830753354, "avg_click_cost": 2.873130841121495, "orders": 2, "order_amount": 310.0, "conv_rate": 0.9345794392523363, "roi": 0.5041880133365862, "add_to_cart": 25, "cost_rate": 198.33870967741933}, {"date_str": "05/21", "spend": 563.11, "impressions": 3504, "clicks": 166, "ctr": 4.737442922374429, "avg_click_cost": 3.392228915662651, "orders": 2, "order_amount": 310.0, "conv_rate": 1.2048192771084338, "roi": 0.5505141091438618, "add_to_cart": 25, "cost_rate": 181.6483870967742}], "expressByModelToday": {"XM-8005": {"spend": 0, "impressions": 0, "clicks": 0, "ctr": 0, "avg_click_cost": 0, "orders": 0, "order_amount": 0, "conv_rate": 0, "roi": 0, "add_to_cart": 0, "cost_rate": 0}, "TF1502黑": {"spend": 0, "impressions": 0, "clicks": 0, "ctr": 0, "avg_click_cost": 0, "orders": 0, "order_amount": 0, "conv_rate": 0, "roi": 0, "add_to_cart": 0, "cost_rate": 0}, "TF1502蓝": {"spend": 0, "impressions": 0, "clicks": 0, "ctr": 0, "avg_click_cost": 0, "orders": 0, "order_amount": 0, "conv_rate": 0, "roi": 0, "add_to_cart": 0, "cost_rate": 0}, "TF1503黑": {"spend": 0, "impressions": 0, "clicks": 0, "ctr": 0, "avg_click_cost": 0, "orders": 0, "order_amount": 0, "conv_rate": 0, "roi": 0, "add_to_cart": 0, "cost_rate": 0}, "G008绿": {"spend": 0, "impressions": 0, "clicks": 0, "ctr": 0, "avg_click_cost": 0, "orders": 0, "order_amount": 0, "conv_rate": 0, "roi": 0, "add_to_cart": 0, "cost_rate": 0}}, "expressByModelCumul": {"XM-8005": {"spend": 0, "impressions": 0, "clicks": 0, "ctr": 0, "avg_click_cost": 0, "orders": 0, "order_amount": 0, "conv_rate": 0, "roi": 0, "add_to_cart": 0, "cost_rate": 0}, "TF1502黑": {"spend": 0, "impressions": 0, "clicks": 0, "ctr": 0, "avg_click_cost": 0, "orders": 0, "order_amount": 0, "conv_rate": 0, "roi": 0, "add_to_cart": 0, "cost_rate": 0}, "TF1502蓝": {"spend": 0, "impressions": 0, "clicks": 0, "ctr": 0, "avg_click_cost": 0, "orders": 0, "order_amount": 0, "conv_rate": 0, "roi": 0, "add_to_cart": 0, "cost_rate": 0}, "TF1503黑": {"spend": 0, "impressions": 0, "clicks": 0, "ctr": 0, "avg_click_cost": 0, "orders": 0, "order_amount": 0, "conv_rate": 0, "roi": 0, "add_to_cart": 0, "cost_rate": 0}, "G008绿": {"spend": 0, "impressions": 0, "clicks": 0, "ctr": 0, "avg_click_cost": 0, "orders": 0, "order_amount": 0, "conv_rate": 0, "roi": 0, "add_to_cart": 0, "cost_rate": 0}}, "expressByModelDaily": {"XM-8005": [], "TF1502黑": [], "TF1502蓝": [], "TF1503黑": [], "G008绿": []}, "plansToday": [{"plan_name": "XM-8005", "型号": "", "spend": 324.93, "impressions": 2783, "clicks": 139, "ctr": 4.99, "avg_click_cost": 2.34, "orders": 1, "order_amount": 155.0, "conv_rate": 0.72, "roi": 0.48, "add_to_cart": 9}, {"plan_name": "全店推广计划", "型号": "", "spend": 197.86, "impressions": 395, "clicks": 16, "ctr": 4.05, "avg_click_cost": 12.37, "orders": 1, "order_amount": 155.0, "conv_rate": 6.25, "roi": 0.78, "add_to_cart": 5}, {"plan_name": "XM-8005智能推广", "型号": "", "spend": 40.32, "impressions": 326, "clicks": 11, "ctr": 3.37, "avg_click_cost": 3.67, "orders": 0, "order_amount": 0.0, "conv_rate": 0.0, "roi": 0.0, "add_to_cart": 9}, {"plan_name": "TF1503新品推广", "型号": "", "spend": 0.0, "impressions": 0, "clicks": 0, "ctr": 0.0, "avg_click_cost": 0.0, "orders": 0, "order_amount": 0.0, "conv_rate": 0.0, "roi": 0.0, "add_to_cart": 2}], "plansCumul": [{"plan_name": "XM-8005", "型号": "", "spend": 1881.6699999999998, "impressions": 21657, "clicks": 975, "orders": 5, "order_amount": 775.0, "add_to_cart": 111, "ctr": 4.502008588447153, "avg_click_cost": 1.9299179487179485, "conv_rate": 0.5128205128205128, "roi": 0.41186818092439165}, {"plan_name": "全店推广计划", "型号": "", "spend": 1193.68, "impressions": 3886, "clicks": 162, "orders": 10, "order_amount": 1644.0, "add_to_cart": 31, "ctr": 4.1688111168296444, "avg_click_cost": 7.368395061728395, "conv_rate": 6.172839506172839, "roi": 1.3772535352858386}, {"plan_name": "XM-8005智能推广", "型号": "", "spend": 1122.34, "impressions": 8210, "clicks": 257, "orders": 10, "order_amount": 1580.0, "add_to_cart": 74, "ctr": 3.1303288672350793, "avg_click_cost": 4.367081712062257, "conv_rate": 3.8910505836575875, "roi": 1.4077730456011548}, {"plan_name": "关键词智配", "型号": "", "spend": 992.2099999999999, "impressions": 11742, "clicks": 521, "orders": 2, "order_amount": 757.0, "add_to_cart": 39, "ctr": 4.437063532617953, "avg_click_cost": 1.904433781190019, "conv_rate": 0.3838771593090211, "roi": 0.7629433285292428}, {"plan_name": "XM-8005投产比控制", "型号": "", "spend": 957.1399999999999, "impressions": 3347, "clicks": 164, "orders": 12, "order_amount": 1984.0, "add_to_cart": 46, "ctr": 4.899910367493278, "avg_click_cost": 5.836219512195121, "conv_rate": 7.317073170731707, "roi": 2.0728420084836077}, {"plan_name": "XM-8005成本控制", "型号": "", "spend": 956.1800000000001, "impressions": 2971, "clicks": 145, "orders": 10, "order_amount": 1580.0, "add_to_cart": 50, "ctr": 4.880511612251767, "avg_click_cost": 6.594344827586207, "conv_rate": 6.896551724137931, "roi": 1.6524085423246668}, {"plan_name": "关键词 大词", "型号": "", "spend": 500.84, "impressions": 11224, "clicks": 551, "orders": 0, "order_amount": 0.0, "add_to_cart": 26, "ctr": 4.909123307198859, "avg_click_cost": 0.9089655172413793, "conv_rate": 0.0, "roi": 0.0}, {"plan_name": "TF1503新品推广", "型号": "", "spend": 140.6, "impressions": 2687, "clicks": 57, "orders": 0, "order_amount": 0.0, "add_to_cart": 3, "ctr": 2.1213248976553776, "avg_click_cost": 2.466666666666667, "conv_rate": 0.0, "roi": 0.0}, {"plan_name": "TF1503智能推广", "型号": "", "spend": 31.27, "impressions": 38, "clicks": 3, "orders": 0, "order_amount": 0.0, "add_to_cart": 0, "ctr": 7.894736842105263, "avg_click_cost": 10.423333333333334, "conv_rate": 0.0, "roi": 0.0}], "siteToday": {"spend": 11.37, "roi": 0.0, "orders": 0, "amount": 0.0, "order_cost": 0.0, "cost_rate": 1.4521072796934864, "spend_change": -95.32694915950844, "amount_change": -100.0, "orders_change": -100.0, "roi_change": -2.09, "order_cost_change": -121.66}, "siteCumul": {"spend": 7738.02, "roi": 2.0935588173718855, "orders": 66, "amount": 16200.0, "order_cost": 117.24272727272728, "cost_rate": 27.03805164401272}, "siteDaily": [{"date_str": "05/01", "spend": 446.89, "roi": 1.2, "orders": 2, "amount": 538.0, "order_cost": 223.445, "cost_rate": 0}, {"date_str": "05/02", "spend": 747.13, "roi": 1.87, "orders": 6, "amount": 1394.0, "order_cost": 124.52166666666666, "cost_rate": 0}, {"date_str": "05/03", "spend": 738.79, "roi": 2.63, "orders": 8, "amount": 1942.0, "order_cost": 92.34875, "cost_rate": 0}, {"date_str": "05/04", "spend": 541.84, "roi": 1.6, "orders": 4, "amount": 866.0, "order_cost": 135.46, "cost_rate": 0}, {"date_str": "05/05", "spend": 503.95, "roi": 2.25, "orders": 5, "amount": 1135.0, "order_cost": 100.78999999999999, "cost_rate": 0}, {"date_str": "05/06", "spend": 239.72, "roi": 1.95, "orders": 2, "amount": 468.0, "order_cost": 119.86, "cost_rate": 0}, {"date_str": "05/07", "spend": 406.45, "roi": 2.13, "orders": 4, "amount": 866.0, "order_cost": 101.6125, "cost_rate": 0}, {"date_str": "05/08", "spend": 163.93, "roi": 1.64, "orders": 1, "amount": 269.0, "order_cost": 163.93, "cost_rate": 0}, {"date_str": "05/09", "spend": 153.71, "roi": 2.89, "orders": 2, "amount": 444.0, "order_cost": 76.855, "cost_rate": 0}, {"date_str": "05/10", "spend": 20.04, "roi": 0.0, "orders": 0, "amount": 0.0, "order_cost": 0, "cost_rate": 0}, {"date_str": "05/11", "spend": 440.72, "roi": 1.18, "orders": 2, "amount": 518.0, "order_cost": 220.36, "cost_rate": 0}, {"date_str": "05/12", "spend": 443.69, "roi": 1.14, "orders": 2, "amount": 508.0, "order_cost": 221.845, "cost_rate": 0}, {"date_str": "05/13", "spend": 453.02, "roi": 3.36, "orders": 6, "amount": 1524.0, "order_cost": 75.50333333333333, "cost_rate": 0}, {"date_str": "05/14", "spend": 487.82, "roi": 1.57, "orders": 3, "amount": 767.0, "order_cost": 162.60666666666665, "cost_rate": 0}, {"date_str": "05/15", "spend": 315.74, "roi": 0.79, "orders": 1, "amount": 249.0, "order_cost": 315.74, "cost_rate": 0}, {"date_str": "05/16", "spend": 154.96, "roi": 3.21, "orders": 2, "amount": 498.0, "order_cost": 77.48, "cost_rate": 0}, {"date_str": "05/17", "spend": 433.89, "roi": 3.49, "orders": 6, "amount": 1514.0, "order_cost": 72.315, "cost_rate": 0}, {"date_str": "05/18", "spend": 151.99, "roi": 3.34, "orders": 2, "amount": 508.0, "order_cost": 75.995, "cost_rate": 0}, {"date_str": "05/19", "spend": 431.81, "roi": 2.98, "orders": 5, "amount": 1285.0, "order_cost": 86.362, "cost_rate": 0}, {"date_str": "05/20", "spend": 207.25, "roi": 1.93, "orders": 1, "amount": 399.0, "order_cost": 207.25, "cost_rate": 0}, {"date_str": "05/21", "spend": 243.31, "roi": 2.09, "orders": 2, "amount": 508.0, "order_cost": 121.655, "cost_rate": 0}, {"date_str": "05/22", "spend": 11.37, "roi": 0.0, "orders": 0, "amount": 0.0, "order_cost": 0, "cost_rate": 0}], "skuTodayByModel": [], "skuCumulByModel": [], "skuDailyByModel": {"XM-8005": [], "TF1502黑": [], "TF1502蓝": [], "TF1503黑": [], "G008绿": []}, "skuTrendByModel": {"XM-8005": [], "TF1502黑": [], "TF1502蓝": [], "TF1503黑": [], "G008绿": []}, "monthly": {"amount": 28619.0, "target": 80000.0, "rate": 35.77375}};
 
 var currentModel = 'all';
 var salesView = 'today';
@@ -324,8 +348,6 @@ var siteView = 'today';
 var plansView = 'today';
 var trendRange = 7;
 var trendChart = null;
-var compareView = 'last_week';
-
 // ======== 工具函数 ========
 function fmtMoney(v) {
   if (v >= 10000) return '¥' + (v/10000).toFixed(2) + '万';
@@ -377,15 +399,29 @@ function renderSalesKPI() {
     {label:'成交件数', main: d.items||0, change: isToday ? changeTag(d.items_change||0) : ''},
     {label:'浏览量', main: fmtNum(d.pv||0), change: isToday ? changeTag(d.pv_change||0) : ''},
     {label:'访客数', main: fmtNum(d.uv||0), change: isToday ? changeTag(d.uv_change||0) : ''},
-    {label:'加购数', main: d.add_to_cart||0, change: isToday ? changeTag(d.add_to_cart_change||0) : '', highlight:false},
-    {label:'转化率', main: (d.conv_rate||0).toFixed(2)+'%', change: isToday ? changeTag(d.conv_change||0,'pp') : '', highlight:false},
+    {label:'加购数', main: d.add_to_cart||0, change: isToday ? changeTag(d.add_to_cart_change||0) : ''},
+    {label:'转化率', main: fmtPct(d.conv_rate||0), change: isToday ? changeTag(d.conv_change||0,'pp') : ''},
   ];
+
+  // 推广汇总（快车+全站）
+  var expressSrc = isToday ? getExpressData() : getExpressData('cumul');
+  var siteSrc = getSiteData();
+  var promoSpend = (expressSrc.spend||0) + (siteSrc.spend||0);
+  var promoOrderAmt = (expressSrc.order_amount||0) + (siteSrc.amount||0);
+  var totalROI = promoSpend > 0 ? promoOrderAmt / promoSpend : 0;
+  var totalCostRate = (d.amount||0) > 0 ? promoSpend / (d.amount||0) * 100 : 0;
+  kpis.push(
+    {label:'推广总花费', main: fmtMoney2(promoSpend), highlight:true},
+    {label:'推广订单金额', main: fmtMoney2(promoOrderAmt)},
+    {label:'总投产比', main: totalROI.toFixed(2)},
+    {label:'总费比', main: fmtPct(totalCostRate,1)}
+  );
 
   kpis.forEach(function(k) {
     html += '<div class="kpi-card' + (k.highlight?' highlight':'') + '">';
     html += '<div class="kpi-label">' + k.label + '</div>';
     html += '<div class="kpi-main">' + k.main + '</div>';
-    if (k.change) html += '<div class="kpi-change">' + k.change + '</div>';
+    if (k.change) html += k.change;
     html += '</div>';
   });
   document.getElementById('salesKPI').innerHTML = html;
@@ -397,52 +433,91 @@ function renderExpressKPI() {
   var isToday = promoView === 'today';
   var html = '';
   var kpis = [
-    {label:'花费', main: fmtMoney2(d.spend||0), change: isToday ? changeTag(d.spend_change||0) : ''},
-    {label:'展现数', main: fmtNum(d.impressions||0), change: isToday ? changeTag(d.impressions_change||0) : ''},
-    {label:'点击数', main: fmtNum(d.clicks||0), change: isToday ? changeTag(d.clicks_change||0) : ''},
-    {label:'点击率', main: (d.ctr||0).toFixed(2)+'%', change: isToday ? changeTag(d.ctr_change||0,'pp') : ''},
-    {label:'均点击成本', main: fmtMoney2(d.avg_click_cost||0), change: isToday ? changeTag(d.avg_click_cost_change||0) : ''},
-    {label:'订单行', main: d.orders||0, change: isToday ? changeTag(d.orders_change||0) : ''},
-    {label:'订单金额', main: fmtMoney2(d.order_amount||0), change: isToday ? changeTag(d.order_amount_change||0) : ''},
-    {label:'转化率', main: (d.conv_rate||0).toFixed(2)+'%', change: isToday ? changeTag(d.conv_rate_change||0,'pp') : ''},
-    {label:'ROI', main: (d.roi||0).toFixed(2), change: isToday ? changeTag(d.roi_change||0) : ''},
-    {label:'加购数', main: d.add_to_cart||0, change: isToday ? changeTag(d.add_to_cart_change||0) : ''},
-    {label:'费比', main: (d.cost_rate||0).toFixed(1)+'%', change: isToday ? changeTag(d.cost_rate_change||0) : ''},
+    {label:'花费', main: fmtMoney2(d.spend||0), cls:'red', change: isToday ? changeTag(d.spend_change||0,'%',true) : ''},
+    {label:'展现数', main: fmtNum(d.impressions||0), change: isToday ? changeTag(d.impressions_change||0,'%',true) : ''},
+    {label:'点击数', main: fmtNum(d.clicks||0), change: isToday ? changeTag(d.clicks_change||0,'%',true) : ''},
+    {label:'点击率', main: fmtPct(d.ctr||0), change: isToday ? changeTag(d.ctr_change||0,'pp',true) : ''},
+    {label:'均点击成本', main: fmtMoney2(d.avg_click_cost||0), change: ''},
+    {label:'订单行', main: d.orders||0, change: isToday ? changeTag(d.orders_change||0,'%',true) : ''},
+    {label:'订单金额', main: fmtMoney2(d.order_amount||0), change: isToday ? changeTag(d.order_amount_change||0,'%',true) : ''},
+    {label:'转化率', main: fmtPct(d.conv_rate||0), change: isToday ? changeTag(d.conv_rate_change||0,'pp',true) : ''},
+    {label:'ROI', main: (d.roi||0).toFixed(2), change: isToday ? changeTag(d.roi_change||0,'',true) : ''},
+    {label:'加购数', main: d.add_to_cart||0, change: isToday ? changeTag(d.add_to_cart_change||0,'%',true) : ''},
+    {label:'费比', main: fmtPct(d.cost_rate||0,1), change: isToday ? changeTag(d.cost_rate_change||0,'pp',true) : ''},
   ];
+
   kpis.forEach(function(k) {
-    html += '<div class="promo-card"><div class="promo-label">' + k.label + '</div><div class="promo-main">' + k.main + '</div>' + (k.change?'<div style="font-size:11px;margin-top:4px;">'+k.change+'</div>':'') + '</div>';
+    html += '<div class="promo-card">';
+    html += '<div class="promo-label">' + k.label + '</div>';
+    html += '<div class="promo-main' + (k.cls?' '+k.cls:'') + '">' + k.main + '</div>';
+    if (k.change) html += k.change;
+    html += '</div>';
   });
   document.getElementById('expressKPI').innerHTML = html;
 }
 
 // ======== 渲染快车按型号表格 ========
 function renderExpressModelTable() {
-  var view = expressModelView === 'today' ? 'expressByModelToday' : 'expressByModelCumul';
-  var thead = document.getElementById('expressModelThead');
-  var tbody = document.getElementById('expressModelBody');
-  thead.innerHTML = '<tr><th>型号</th><th style="text-align:right">花费</th><th style="text-align:right">展现</th><th style="text-align:right">点击</th><th style="text-align:right">点击率</th><th style="text-align:right">均点成本</th><th style="text-align:right">订单</th><th style="text-align:right">金额</th><th style="text-align:right">转化率</th><th style="text-align:right">ROI</th><th style="text-align:right">加购</th><th style="text-align:right">费比</th></tr>';
-  
-  var models = currentModel === 'all' ? Object.keys(D[view]||{}) : [currentModel];
+  var models = D.models;
+  var src = expressModelView === 'cumul' ? D.expressByModelCumul : D.expressByModelToday;
+  var emptyE = {spend:0,impressions:0,clicks:0,ctr:0,avg_click_cost:0,orders:0,order_amount:0,conv_rate:0,roi:0,add_to_cart:0,cost_rate:0};
+
+  // 表头
+  var thead = '<tr><th>型号</th><th>花费</th><th>展现数</th><th>点击数</th><th>点击率</th><th>均点击成本</th><th>订单行</th><th>订单金额</th><th>转化率</th><th>ROI</th><th>加购数</th><th>费比</th></tr>';
+  document.getElementById('expressModelThead').innerHTML = thead;
+
+  // 数据行 + 合计行
   var html = '';
-  models.forEach(function(m) {
-    var d = (D[view]||{})[m] || {};
-    if (!d.spend && !d.orders) return;
-    html += '<tr>';
-    html += '<td>' + m + '</td>';
-    html += '<td class="amt">' + fmtMoney2(d.spend||0) + '</td>';
-    html += '<td class="num">' + fmtNum(d.impressions||0) + '</td>';
-    html += '<td class="num">' + fmtNum(d.clicks||0) + '</td>';
-    html += '<td class="num">' + (d.ctr||0).toFixed(2) + '%</td>';
-    html += '<td class="amt">' + fmtMoney2(d.avg_click_cost||0) + '</td>';
-    html += '<td class="num">' + (d.orders||0) + '</td>';
-    html += '<td class="amt">' + fmtMoney2(d.order_amount||0) + '</td>';
-    html += '<td class="num">' + (d.conv_rate||0).toFixed(2) + '%</td>';
-    html += '<td class="num">' + (d.roi||0).toFixed(2) + '</td>';
-    html += '<td class="num">' + (d.add_to_cart||0) + '</td>';
-    html += '<td class="num">' + (d.cost_rate||0).toFixed(1) + '%</td>';
+  var sumSpend=0, sumImp=0, sumClicks=0, sumOrders=0, sumAmount=0, sumCart=0;
+
+  models.forEach(function(model) {
+    var d = src[model] || emptyE;
+    sumSpend += d.spend||0;
+    sumImp += d.impressions||0;
+    sumClicks += d.clicks||0;
+    sumOrders += d.orders||0;
+    sumAmount += d.order_amount||0;
+    sumCart += d.add_to_cart||0;
+
+    html += '<tr class="model-row">';
+    html += '<td>' + model + '</td>';
+    html += '<td>' + fmtMoney2(d.spend||0) + '</td>';
+    html += '<td>' + fmtNum(d.impressions||0) + '</td>';
+    html += '<td>' + fmtNum(d.clicks||0) + '</td>';
+    html += '<td>' + fmtPct(d.ctr||0) + '</td>';
+    html += '<td>' + fmtMoney2(d.avg_click_cost||0) + '</td>';
+    html += '<td>' + (d.orders||0) + '</td>';
+    html += '<td>' + fmtMoney2(d.order_amount||0) + '</td>';
+    html += '<td>' + fmtPct(d.conv_rate||0) + '</td>';
+    html += '<td>' + (d.roi||0).toFixed(2) + '</td>';
+    html += '<td>' + (d.add_to_cart||0) + '</td>';
+    html += '<td>' + fmtPct(d.cost_rate||0,1) + '</td>';
     html += '</tr>';
   });
-  tbody.innerHTML = html;
+
+  // 合计行
+  var sumCTR = sumImp > 0 ? sumClicks/sumImp*100 : 0;
+  var sumCPC = sumClicks > 0 ? sumSpend/sumClicks : 0;
+  var sumConv = sumClicks > 0 ? sumOrders/sumClicks*100 : 0;
+  var sumROI = sumSpend > 0 ? sumAmount/sumSpend : 0;
+  var sumCR = sumAmount > 0 ? sumSpend/sumAmount*100 : 0;
+
+  html += '<tr class="sum-row" style="background:rgba(196,18,48,0.06) !important;">';
+  html += '<td style="color:#1a1a2e;font-weight:700;">合计</td>';
+  html += '<td class="amt">' + fmtMoney2(sumSpend) + '</td>';
+  html += '<td class="num">' + fmtNum(sumImp) + '</td>';
+  html += '<td class="num">' + fmtNum(sumClicks) + '</td>';
+  html += '<td class="num">' + fmtPct(sumCTR) + '</td>';
+  html += '<td class="amt">' + fmtMoney2(sumCPC) + '</td>';
+  html += '<td class="num">' + sumOrders + '</td>';
+  html += '<td class="amt">' + fmtMoney2(sumAmount) + '</td>';
+  html += '<td class="num">' + fmtPct(sumConv) + '</td>';
+  html += '<td class="num">' + sumROI.toFixed(2) + '</td>';
+  html += '<td class="num">' + sumCart + '</td>';
+  html += '<td class="num">' + fmtPct(sumCR,1) + '</td>';
+  html += '</tr>';
+
+  document.getElementById('expressModelBody').innerHTML = html;
 }
 
 // ======== 渲染每日销售明细表 ========
@@ -508,37 +583,31 @@ function renderPromoDetailTable() {
 
 // ======== 渲染快车计划明细 ========
 function renderPlansTable() {
-  var rows = plansView === 'today' ? D.expressPlansToday : D.expressPlansCumulative;
+  var plans = (plansView === 'cumul' ? D.plansCumul : D.plansToday).filter(function(p) { return (p.spend||0) > 0; });
   var html = '';
-  var sumSpend=0, sumImp=0, sumClicks=0, sumOrders=0, sumAmount=0;
-  (rows||[]).forEach(function(r) {
-    if (!r.spend) return;
-    sumSpend+=r.spend; sumImp+=r.impressions||0; sumClicks+=r.clicks||0; sumOrders+=r.orders||0; sumAmount+=r.order_amount||0;
+
+  plans.forEach(function(p) {
     html += '<tr>';
-    html += '<td>' + (r.plan_name||'') + '</td>';
-    html += '<td>' + (r.型号||'') + '</td>';
-    html += '<td class="amt">' + fmtMoney2(r.spend) + '</td>';
-    html += '<td class="num">' + fmtNum(r.impressions||0) + '</td>';
-    html += '<td class="num">' + fmtNum(r.clicks||0) + '</td>';
-    html += '<td class="num">' + fmtPct(r.ctr||0) + '</td>';
-    html += '<td class="amt">' + fmtMoney2(r.avg_click_cost||0) + '</td>';
-    html += '<td class="num">' + (r.orders||0) + '</td>';
-    html += '<td class="amt">' + fmtMoney2(r.order_amount||0) + '</td>';
-    html += '<td class="num">' + fmtPct(r.conv_rate||0) + '</td>';
-    html += '<td class="num">' + (r.roi||0).toFixed(2) + '</td>';
-    html += '<td class="num">' + (r.add_to_cart||0) + '</td>';
-    html += '<td class="num">' + fmtPct(r.cost_rate||0,1) + '</td>';
+    html += '<td>' + (p.plan_name||'') + '</td>';
+    html += '<td>' + (p['型号']||'') + '</td>';
+    html += '<td class="amt">' + fmtMoney2(p.spend||0) + '</td>';
+    html += '<td class="num">' + fmtNum(p.impressions||0) + '</td>';
+    html += '<td class="num">' + fmtNum(p.clicks||0) + '</td>';
+    html += '<td class="num">' + fmtPct(p.ctr||0) + '</td>';
+    html += '<td class="amt">' + fmtMoney2(p.avg_click_cost||0) + '</td>';
+    html += '<td class="num">' + (p.orders||0) + '</td>';
+    html += '<td class="amt">' + fmtMoney2(p.order_amount||0) + '</td>';
+    html += '<td class="num">' + fmtPct(p.conv_rate||0) + '</td>';
+    html += '<td class="num">' + (p.roi||0).toFixed(2) + '</td>';
+    html += '<td class="num">' + (p.add_to_cart||0) + '</td>';
     html += '</tr>';
   });
-  // 合计行
-  var sumCTR = sumClicks>0?sumClicks/sumImp*100:0, sumCPC = sumClicks>0?sumSpend/sumClicks:0, sumConv = sumClicks>0?sumOrders/sumClicks*100:0, sumROI = sumSpend>0?sumAmount/sumSpend:0, sumCR = sumAmount>0?sumSpend/sumAmount*100:0;
-  html += '<tr class="sum-row" style="background:rgba(196,18,48,0.06) !important;"><td style="color:#1a1a2e;font-weight:700;">合计</td><td></td><td class="amt">' + fmtMoney2(sumSpend) + '</td><td class="num">' + fmtNum(sumImp) + '</td><td class="num">' + fmtNum(sumClicks) + '</td><td class="num">' + fmtPct(sumCTR) + '</td><td class="amt">' + fmtMoney2(sumCPC) + '</td><td class="num">' + sumOrders + '</td><td class="amt">' + fmtMoney2(sumAmount) + '</td><td class="num">' + fmtPct(sumConv) + '</td><td class="num">' + sumROI.toFixed(2) + '</td><td class="num">' + (rows||[]).reduce(function(s,r){return s+(r.add_to_cart||0)},0) + '</td><td class="num">' + fmtPct(sumCR,1) + '</td></tr>';
-  document.getElementById('plansBody').innerHTML = html;
 
-  // 更新表头（首次）
-  if (!document.getElementById('plansThead').innerHTML) {
-    document.getElementById('plansThead').innerHTML = '<tr><th>推广计划</th><th>型号</th><th style="text-align:right">花费</th><th style="text-align:right">展现</th><th style="text-align:right">点击</th><th style="text-align:right">点击率</th><th style="text-align:right">均点成本</th><th style="text-align:right">订单</th><th style="text-align:right">金额</th><th style="text-align:right">转化率</th><th style="text-align:right">ROI</th><th style="text-align:right">加购</th><th style="text-align:right">费比</th></tr>';
+  if (plans.length === 0) {
+    html = '<tr><td colspan="12" style="text-align:center;color:#ccc;padding:20px;">暂无数据</td></tr>';
   }
+
+  document.getElementById('plansBody').innerHTML = html;
 }
 
 // ======== 渲染全站KPI ========
@@ -547,15 +616,20 @@ function renderSiteKPI() {
   var isToday = siteView === 'today';
   var html = '';
   var kpis = [
-    {label:'花费', main: fmtMoney2(d.spend||0), change: isToday ? changeTag(d.spend_change||0) : ''},
-    {label:'全站交易额', main: fmtMoney2(d.amount||0), change: isToday ? changeTag(d.amount_change||0) : ''},
-    {label:'全站投产比', main: (d.roi||0).toFixed(2), change: isToday ? changeTag(d.roi_change||0) : ''},
-    {label:'订单行', main: d.orders||0, change: isToday ? changeTag(d.orders_change||0) : ''},
-    {label:'订单成本', main: fmtMoney2(d.order_cost||0), change: isToday ? changeTag(d.order_cost_change||0) : ''},
-    {label:'费比', main: (d.cost_rate||0).toFixed(1)+'%', change: isToday ? changeTag(d.cost_rate_change||0) : ''},
+    {label:'花费', main: fmtMoney2(d.spend||0), cls:'red', change: isToday ? changeTag(d.spend_change||0,'%',true) : ''},
+    {label:'全站交易额', main: fmtMoney2(d.amount||0), change: isToday ? changeTag(d.amount_change||0,'%',true) : ''},
+    {label:'全站投产比', main: (d.roi||0).toFixed(2), change: isToday ? changeTag(d.roi_change||0,'',true) : ''},
+    {label:'订单行', main: d.orders||0, change: isToday ? changeTag(d.orders_change||0,'%',true) : ''},
+    {label:'订单成本', main: fmtMoney2(d.order_cost||0), change: ''},
+    {label:'费比', main: fmtPct(d.cost_rate||0,1), change: isToday ? changeTag(d.cost_rate_change||0,'pp',true) : ''},
   ];
+
   kpis.forEach(function(k) {
-    html += '<div class="promo-card"><div class="promo-label">' + k.label + '</div><div class="promo-main">' + k.main + '</div>' + (k.change?'<div style="font-size:11px;margin-top:4px;">'+k.change+'</div>':'') + '</div>';
+    html += '<div class="promo-card">';
+    html += '<div class="promo-label">' + k.label + '</div>';
+    html += '<div class="promo-main' + (k.cls?' '+k.cls:'') + '">' + k.main + '</div>';
+    if (k.change) html += k.change;
+    html += '</div>';
   });
   document.getElementById('siteKPI').innerHTML = html;
 }
@@ -592,38 +666,98 @@ function getTrendData() {
   var range = trendRange;
   var sliced = allTrend.slice(-range);
   var labels = sliced.map(function(t) { return t[0]; });
-  var amountData, itemsData, pvData, uvData, cartData;
+  var amountData, itemsData, pvData, uvData;
+
   if (currentModel === 'all') {
     amountData = sliced.map(function(t) { return t[1]; });
     itemsData = sliced.map(function(t) { return t[2]; });
     pvData = sliced.map(function(t) { return t[3] || 0; });
     uvData = sliced.map(function(t) { return t[4] || 0; });
-    cartData = sliced.map(function(t) { return t[5] || 0; });
   } else {
-    var mt = (D.skuTrendByModel||{})[currentModel] || [];
-    var mtMapAmt = {}, mtMapItems = {}, mtMapPV = {}, mtMapUV = {}, mtMapCart = {};
-    mt.forEach(function(t) { mtMapAmt[t[0]] = t[1]; mtMapItems[t[0]] = t[2]; mtMapPV[t[0]] = t[3]||0; mtMapUV[t[0]] = t[4]||0; mtMapCart[t[0]] = t[5]||0; });
+    var mt = D.skuTrendByModel[currentModel] || [];
+    var mtMapAmt = {}, mtMapItems = {}, mtMapPV = {}, mtMapUV = {};
+    mt.forEach(function(t) { mtMapAmt[t[0]] = t[1]; mtMapItems[t[0]] = t[2]; mtMapPV[t[0]] = t[3] || 0; mtMapUV[t[0]] = t[4] || 0; });
     amountData = labels.map(function(l) { return mtMapAmt[l] || 0; });
     itemsData = labels.map(function(l) { return mtMapItems[l] || 0; });
     pvData = labels.map(function(l) { return mtMapPV[l] || 0; });
     uvData = labels.map(function(l) { return mtMapUV[l] || 0; });
-    cartData = labels.map(function(l) { return mtMapCart[l] || 0; });
   }
-  return { labels: labels, amountData: amountData, itemsData: itemsData, pvData: pvData, uvData: uvData, cartData: cartData };
+
+  return { labels: labels, amountData: amountData, itemsData: itemsData, pvData: pvData, uvData: uvData };
 }
 
 function initChart() {
   var ctx = document.getElementById('trendChart').getContext('2d');
   var td = getTrendData();
+
   trendChart = new Chart(ctx, {
-    type: 'bar',
+    type: 'line',
     data: {
       labels: td.labels,
       datasets: [
-        { type:'line', label:'销售额', data: td.amountData, yAxisID:'y', borderColor:'#c41230', backgroundColor:'rgba(196,18,48,0.1)', fill:true, tension:0.4, pointRadius:3 },
-        { type:'line', label:'成交件数', data: td.itemsData, yAxisID:'y1', borderColor:'#5b6abf', backgroundColor:'rgba(91,106,191,0.1)', fill:false, tension:0.4, pointRadius:3 },
-        { type:'line', label:'浏览量', data: td.pvData, yAxisID:'y2', borderColor:'#2ea87e', backgroundColor:'rgba(46,168,126,0.1)', fill:false, tension:0.4, pointRadius:2, borderDash:[5,3] },
-        { type:'line', label:'访客数', data: td.uvData, yAxisID:'y2', borderColor:'#f59e0b', backgroundColor:'rgba(245,158,11,0.1)', fill:false, tension:0.4, pointRadius:2, borderDash:[2,2] },
+        {
+          label: '销售额',
+          data: td.amountData,
+          borderColor: '#c41230',
+          backgroundColor: 'rgba(196,18,48,0.08)',
+          fill: true,
+          tension: 0.4,
+          yAxisID: 'y',
+          pointRadius: 4,
+          pointHoverRadius: 7,
+          pointBackgroundColor: '#c41230',
+          pointBorderColor: '#fff',
+          pointBorderWidth: 2,
+          borderWidth: 3,
+        },
+        {
+          label: '成交件数',
+          data: td.itemsData,
+          borderColor: '#5b6abf',
+          backgroundColor: 'rgba(91,106,191,0.06)',
+          fill: false,
+          tension: 0.4,
+          yAxisID: 'y1',
+          pointRadius: 3,
+          pointHoverRadius: 6,
+          pointBackgroundColor: '#5b6abf',
+          pointBorderColor: '#fff',
+          pointBorderWidth: 2,
+          borderWidth: 2,
+          borderDash: [5, 3],
+        },
+        {
+          label: '浏览量',
+          data: td.pvData,
+          borderColor: '#2ea87e',
+          backgroundColor: 'transparent',
+          fill: false,
+          tension: 0.4,
+          yAxisID: 'y2',
+          pointRadius: 2,
+          pointHoverRadius: 5,
+          pointBackgroundColor: '#2ea87e',
+          pointBorderColor: '#fff',
+          pointBorderWidth: 1,
+          borderWidth: 2,
+          borderDash: [3, 3],
+        },
+        {
+          label: '访客量',
+          data: td.uvData,
+          borderColor: '#e8913a',
+          backgroundColor: 'transparent',
+          fill: false,
+          tension: 0.4,
+          yAxisID: 'y2',
+          pointRadius: 2,
+          pointHoverRadius: 5,
+          pointBackgroundColor: '#e8913a',
+          pointBorderColor: '#fff',
+          pointBorderWidth: 1,
+          borderWidth: 2,
+          borderDash: [6, 3],
+        }
       ]
     },
     options: {
@@ -631,7 +765,10 @@ function initChart() {
       maintainAspectRatio: false,
       interaction: { mode: 'index', intersect: false },
       plugins: {
-        legend: { position: 'top', labels: { color: '#666', usePointStyle: true, padding: 16 } },
+        legend: {
+          position: 'top',
+          labels: { color: '#666', usePointStyle: true, padding: 16 }
+        },
         tooltip: {
           backgroundColor: 'rgba(255,255,255,0.95)',
           titleColor: '#333',
@@ -643,24 +780,39 @@ function initChart() {
         }
       },
       scales: {
-        x: { grid: { color: '#f0f2f5' }, ticks: { color: '#999' } },
+        x: {
+          grid: { color: '#f0f2f5' },
+          ticks: { color: '#999' }
+        },
         y: {
-          type: 'linear', position: 'left',
+          type: 'linear',
+          position: 'left',
           title: { display: true, text: '销售额 (元)', color: '#999' },
           grid: { color: '#f0f2f5' },
-          ticks: { color: '#999', callback: function(v) { return '¥' + v.toLocaleString(); } }
+          ticks: {
+            color: '#999',
+            callback: function(v) { return '¥' + v.toLocaleString(); }
+          }
         },
         y1: {
-          type: 'linear', position: 'right',
+          type: 'linear',
+          position: 'right',
           title: { display: true, text: '成交件数', color: '#5b6abf' },
           grid: { drawOnChartArea: false },
-          ticks: { color: '#5b6abf', callback: function(v) { return v + '件'; } }
+          ticks: {
+            color: '#5b6abf',
+            callback: function(v) { return v + '件'; }
+          }
         },
         y2: {
-          type: 'linear', position: 'right',
+          type: 'linear',
+          position: 'right',
           title: { display: true, text: '浏览/访客', color: '#2ea87e' },
           grid: { drawOnChartArea: false },
-          ticks: { color: '#2ea87e', callback: function(v) { return v.toLocaleString(); } }
+          ticks: {
+            color: '#2ea87e',
+            callback: function(v) { return v.toLocaleString(); }
+          }
         }
       }
     }
@@ -687,43 +839,61 @@ document.getElementById('modelSelector').addEventListener('change', function(e) 
   renderExpressModelTable();
   renderPromoDetailTable();
   renderSiteKPI();
-  renderSiteDetailTable();
   renderPlansTable();
   updateChart();
 });
 
-// Tab切换
-function setupTabs(containerId, callback) {
-  var tabs = document.querySelectorAll('#' + containerId + ' .sub-tab');
-  tabs.forEach(function(tab) {
-    tab.addEventListener('click', function() {
-      tabs.forEach(function(t) { t.classList.remove('active'); });
-      tab.classList.add('active');
-      callback(tab.dataset.view);
-    });
-  });
-}
-setupTabs('salesTabs', function(v) { salesView = v; renderSalesKPI(); });
-setupTabs('expressTabs', function(v) { promoView = v; renderExpressKPI(); });
-setupTabs('expressModelTabs', function(v) { expressModelView = v; renderExpressModelTable(); });
-setupTabs('siteTabs', function(v) { siteView = v; renderSiteKPI(); });
-setupTabs('plansTabs', function(v) { plansView = v; renderPlansTable(); });
-setupTabs('rangeTabs', function(v) { trendRange = parseInt(v); updateChart(); });
-function toggleCollapse(id) {
-  var el = document.getElementById(id);
-  el.classList.toggle('collapsed');
+// Sub-tab切换（事件委托）
+document.addEventListener('click', function(e) {
+  // Sub-tabs
+  if (e.target.classList.contains('sub-tab')) {
+    var section = e.target.closest('.section');
+    if (!section) return;
+    section.querySelectorAll('.sub-tab').forEach(function(t) { t.classList.remove('active'); });
+    e.target.classList.add('active');
+    var view = e.target.dataset.view;
+
+    if (section.querySelector('#salesKPI')) {
+      salesView = view; renderSalesKPI();
+    } else if (section.querySelector('#expressKPI')) {
+      promoView = view; renderExpressKPI();
+    } else if (section.querySelector('#expressModelTable')) {
+      expressModelView = view; renderExpressModelTable();
+    } else if (section.querySelector('#siteKPI')) {
+      siteView = view; renderSiteKPI();
+    } else if (section.querySelector('#plansTable')) {
+      plansView = view; renderPlansTable();
+    }
+  }
+
+  // Range tabs
+  if (e.target.classList.contains('range-tab')) {
+    document.querySelectorAll('#trendRange .range-tab').forEach(function(t) { t.classList.remove('active'); });
+    e.target.classList.add('active');
+    trendRange = parseInt(e.target.dataset.range);
+    updateChart();
+  }
+});
+
+// ======== 折叠/展开 ========
+function toggleCollapse(sectionId) {
+  var section = document.getElementById(sectionId);
+  if (!section) return;
+  section.classList.toggle('collapsed');
 }
 
 // ======== 初始化 ========
-renderSalesKPI();
-renderSalesDetailTable();
-renderExpressKPI();
-renderExpressModelTable();
-renderPromoDetailTable();
-renderSiteKPI();
-renderSiteDetailTable();
-renderPlansTable();
-initChart();
+document.addEventListener('DOMContentLoaded', function() {
+  renderSalesKPI();
+  renderSalesDetailTable();
+  renderExpressKPI();
+  renderExpressModelTable();
+  renderPromoDetailTable();
+  renderSiteKPI();
+  renderSiteDetailTable();
+  renderPlansTable();
+  initChart();
+});
 </script>
 </body>
 </html>
