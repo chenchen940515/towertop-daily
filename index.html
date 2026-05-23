@@ -388,7 +388,7 @@ body { font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaH
 <!-- ===== Footer ===== -->
 <div class="footer">
   TOWERTOP 京东自营旗舰店 · 数据来源：商智自营版 & 京准通<br>
-  报告生成时间：2026-05-23 16:16:40
+  报告生成时间：2026-05-23 16:22:48
 </div>
 
 </div>
@@ -826,6 +826,28 @@ function initChart() {
       plugins: {
         legend: {
           position: isMobile ? 'bottom' : 'top',
+          onClick: function(e, legendItem, legend) {
+            var chart = legend.chart;
+            var index = legendItem.datasetIndex;
+            var meta = chart.getDatasetMeta(index);
+            // 切换当前数据集显示/隐藏（Chart.js 默认行为）
+            meta.hidden = meta.hidden === null ? !chart.data.datasets[index].hidden : null;
+            // 手机端：同步更新右侧Y轴显隐（左轴始终显示）
+            if (isMobile) {
+              var showY1 = false, showY2 = false;
+              chart.data.datasets.forEach(function(ds, i) {
+                var m = chart.getDatasetMeta(i);
+                var vis = m.hidden !== true;
+                if (vis) {
+                  if (ds.yAxisID === 'y1') showY1 = true;
+                  if (ds.yAxisID === 'y2') showY2 = true;
+                }
+              });
+              chart.options.scales.y1.display = showY1;
+              chart.options.scales.y2.display = showY2;
+            }
+            chart.update();
+          },
           labels: {
             color: '#666',
             usePointStyle: true,
@@ -873,6 +895,7 @@ function initChart() {
         y1: {
           type: 'linear',
           position: 'right',
+          display: !isMobile,
           title: { display: !isMobile, text: '成交件数', color: '#5b6abf' },
           grid: { drawOnChartArea: false },
           ticks: {
@@ -884,6 +907,7 @@ function initChart() {
         y2: {
           type: 'linear',
           position: 'right',
+          display: !isMobile,
           title: { display: !isMobile, text: '浏览/访客', color: '#2ea87e' },
           grid: { drawOnChartArea: false },
           ticks: {
