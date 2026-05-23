@@ -307,7 +307,7 @@ body { font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaH
 <!-- ===== Footer ===== -->
 <div class="footer">
   TOWERTOP 京东自营旗舰店 · 数据来源：商智自营版 & 京准通<br>
-  报告生成时间：2026-05-23 11:22:08
+  报告生成时间：2026-05-23 11:28:17
 </div>
 
 </div>
@@ -709,16 +709,12 @@ setupTabs('expressModelTabs', function(v) { expressModelView = v; renderExpressM
 setupTabs('siteTabs', function(v) { siteView = v; renderSiteKPI(); });
 setupTabs('plansTabs', function(v) { plansView = v; renderPlansTable(); });
 setupTabs('rangeTabs', function(v) { trendRange = parseInt(v); updateChart(); });
-setupTabs('compareTabs', function(v) { compareView = v; renderCompare(); });
-
 function toggleCollapse(id) {
   var el = document.getElementById(id);
   el.classList.toggle('collapsed');
 }
 
 // ======== 初始化 ========
-renderInsights();
-renderAlerts();
 renderSalesKPI();
 renderSalesDetailTable();
 renderExpressKPI();
@@ -727,7 +723,6 @@ renderPromoDetailTable();
 renderSiteKPI();
 renderSiteDetailTable();
 renderPlansTable();
-renderCompare();
 initChart();
 </script>
 </body>
