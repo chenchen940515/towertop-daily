@@ -393,7 +393,7 @@ body { font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaH
 <!-- ===== Footer ===== -->
 <div class="footer">
   TOWERTOP 京东自营旗舰店 · 数据来源：商智自营版 & 京准通<br>
-  报告生成时间：2026-05-25 11:01:47
+  报告生成时间：2026-05-26 14:48:09
 </div>
 
 </div>
@@ -432,8 +432,12 @@ function getSalesData(view) {
   view = view || salesView;
   var src = view === 'cumul' ? D.cumul : D.today;
   if (currentModel === 'all') return src;
-  var modelSrc = view === 'cumul' ? D.skuCumulByModel : D.skuTodayByModel;
-  return modelSrc[currentModel] || {};
+  var modelArr = view === 'cumul' ? D.skuCumulByModel : D.skuTodayByModel;
+  // modelArr is an array, find by 型号 field
+  for (var i = 0; i < modelArr.length; i++) {
+    if (modelArr[i]['型号'] === currentModel) return modelArr[i];
+  }
+  return {};
 }
 
 function getExpressData(view) {
